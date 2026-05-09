@@ -22,6 +22,45 @@
 
 ## Phase 0 增量
 
+### Task P0-T4-v2:LLM 客户端升级(双 LLM 路由 + 本地 embedding)
+
+**Files:** Modify `scripts/_lib/llm.py`, `scripts/pyproject.toml`
+
+> 你已有 Claude API + DeepSeek API。把 `_lib/llm.py` 升级为支持双 LLM 路由 + 本地 bge-m3 embedding。完整设计见 `docs/LLM-ROUTING.md`。
+
+- [ ] **Step 1:** `scripts/pyproject.toml` 加依赖
+
+```toml
+dependencies = [
+  ...
+  "anthropic",
+  "sentence-transformers",
+  "torch",
+]
+```
+
+- [ ] **Step 2:** 把 `scripts/_lib/llm.py` 整个替换为 `docs/LLM-ROUTING.md` 第 4 节的版本
+
+- [ ] **Step 3:** `.env.local` 确认有 `DEEPSEEK_API_KEY` + `ANTHROPIC_API_KEY`
+
+- [ ] **Step 4:** 跑通 smoke test
+
+```python
+# scripts/smoke_llm.py
+from _lib.llm import chat, embed
+print(chat([{"role":"user","content":"返回 JSON {\"ok\": true}"}], quality="fast", json_mode=True))
+print(chat([{"role":"user","content":"用一句话写'时光档案馆'的产品定位"}], quality="high"))
+print(chat([{"role":"user","content":"用克制的衬线感语言写一句博物馆开馆词"}], quality="best"))
+print(len(embed(["测试", "今天天气真好"])[0]))  # 应输出 1024
+```
+
+- [ ] **Step 5:** Commit
+
+```bash
+git add scripts/_lib/llm.py scripts/pyproject.toml scripts/smoke_llm.py
+git commit -m "infra(v2): dual-LLM router (DeepSeek+Claude) + local bge-m3 embed"
+```
+
 ### Task P0-T3-v2:Schema 升级(替换 v1 的 P0-T3)
 
 **Files:** Modify `supabase/migrations/0001_init.sql`(在 v1 的 SQL 后面追加)
@@ -216,6 +255,10 @@ git commit -m "data: seed collections (themes/decades) + curator notes"
 ## Phase 1 增量
 
 ### Task P1-T7(新):情绪标注 + archive_no 生成
+
+> **路由:** 该任务用 `chat(..., quality="fast")` (DeepSeek)。
+
+
 
 **Files:** Create `scripts/08_mood_and_archive_no.py`
 
@@ -954,5 +997,21 @@ git add -A && git commit -m "feat(v2): global museum nav"
 - [ ] 写 3 篇年代档案导语
 - [ ] 写 1 篇金句博物馆导语
 - [ ] 写 3 篇策展人手记
-- [ ] 共 13 段文案。AI 起稿 + 你润色,4 小时内能完成。
+- [ ] 共 13 段文案。流程:**Claude Sonnet 4.6 起稿(`chat(..., quality="best")`)→ 你润色 30 分钟/篇**,4 小时内能完成。
 - [ ] 全部填入 `data/collections.seed.json` 和 `data/curator_notes.seed.json`
+
+---
+
+## 📜 LLM 路由速查(对照 `docs/LLM-ROUTING.md`)
+
+| 脚本 / 路由 | quality | 模型 |
+|---|---|---|
+| `03_cluster_opinions.py` | `fast` | DeepSeek-V3 |
+| `04_extract_quotes.py` | `fast` | DeepSeek-V3 |
+| `05_attach_events.py` | `fast` | DeepSeek-V3 |
+| `06_predict_2029.py` | `high` | Claude Haiku 4.5 |
+| `08_mood_and_archive_no.py` | `fast` | DeepSeek-V3 |
+| `10_curatorial_intros.py`(新)| `best` | Claude Sonnet 4.6 |
+| `/api/predict/[id]` 运行时 | `high` | Claude Haiku 4.5 |
+| `/api/search` 兜底 | `high` | Claude Haiku 4.5 |
+| 全部 embedding | — | 本地 bge-m3 |

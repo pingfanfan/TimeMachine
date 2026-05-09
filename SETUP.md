@@ -73,20 +73,24 @@
 - [ ] 必须通过 OAuth `publish` scope 才能发帖到该圈子
 - [ ] 发布"参赛想法"到「黑客松脑洞补给站」圈子是**人气奖必修课**(评定标准之一)
 
-#### M4 · DeepSeek API key
+#### M4 · DeepSeek API key ✅ 已有
 
-- [ ] 注册 https://platform.deepseek.com,充值 ¥50,取 key 写入 `DEEPSEEK_API_KEY`
-- **耗时:** 10 分钟
+- [x] 用户已有 DeepSeek key
+- 写入 `.env.local` → `DEEPSEEK_API_KEY=<your-key>`
+- **角色:** 离线 pipeline 大批量便宜任务(观点提炼/金句/mood 标签 — 几千次调用)
 
-#### M5 · Claude Haiku 4.5 API key(可选)
+#### M5 · Claude API key ✅ 已有
 
-- [ ] https://console.anthropic.com 注册 + $10 充值,取 key 写入 `ANTHROPIC_API_KEY`
-- **必要性:** 🟡 DeepSeek 单跑可省
+- [x] 用户已有 Claude key
+- 写入 `.env.local` → `ANTHROPIC_API_KEY=<your-key>`
+- **角色:** 高质量任务(2029 预测、策展导语、复杂分析 — 几十次调用)
 
-#### M6 · OpenAI embedding key(可选)
+#### M6 · Embedding 方案 → 本地 bge-m3 ✅ 无需付费
 
-- [ ] 注册 + $5 → `OPENAI_API_KEY`
-- **替代:** 本地 bge-m3 推理
+- [ ] 不调外部 API,改用本地 `BAAI/bge-m3` 模型
+- 装包:`uv add sentence-transformers torch`(自动下 4GB 模型,首次调用慢一次)
+- M-series Mac 跑得动;装包耗时 5 分钟,首次模型下载 5 分钟
+- **替代方案:** 若不想下 4GB 模型,换硅基流动(国内便宜 embedding,< ¥1 跑完全部)
 
 #### M7 · Supabase 项目
 
