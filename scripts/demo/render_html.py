@@ -43,7 +43,7 @@ def esc(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
-HTML = """<!DOCTYPE html>
+HTML = r"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -174,9 +174,15 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 
 <nav class="nav">
   <div class="nav-title">时光档案馆 <span style="font-style:italic; font-size:13px; color:rgba(8,16,31,0.5); margin-left:8px;">知乎编年观点演变史</span></div>
-  <div>
+  <div style="display:flex; align-items:center; gap:8px;">
     <a class="nav-link" onclick="showHome()">本馆首页</a>
-    <a class="nav-link" href="#">关于</a>
+    <input id="nav-search" placeholder="输入老话题…" style="border:1px solid rgba(8,16,31,0.2); padding:6px 12px; font-family:'Noto Sans SC'; font-size:13px; outline:none; width:180px;" onkeydown="if(event.key==='Enter')doSearch(this.value)">
+    <button class="nav-link" id="login-btn" onclick="loginZhihu()" style="border:1px solid rgba(8,16,31,0.2); background:transparent; padding:6px 12px; cursor:pointer; font-family:'Noto Sans SC';">登录知乎</button>
+    <span id="user-info" style="display:none; align-items:center; gap:6px;">
+      <img id="user-avatar" style="width:24px; height:24px; border-radius:50%;">
+      <span id="user-name" style="font-size:13px;"></span>
+      <button onclick="logout()" style="background:transparent; border:none; color:var(--stamp); cursor:pointer; font-size:11px;">退出</button>
+    </span>
   </div>
 </nav>
 
@@ -190,7 +196,18 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
   <div class="hero-stats">
     馆藏 <strong>__TOPIC_COUNT__</strong> 份档案 · <strong>__QUOTE_COUNT__</strong> 份金句 · 跨越 <strong>__YEAR_SPAN__</strong> 年
   </div>
-  <div class="hero-hint">↓ 翻阅本馆</div>
+  <div style="margin-top:48px; width:100%; max-width:560px;">
+    <div style="display:flex; gap:0;">
+      <input id="hero-search" placeholder="输入任意老话题,看它在知乎的十五年前世今生…"
+             onkeydown="if(event.key==='Enter'){event.preventDefault(); doSearch(this.value);}"
+             style="flex:1; padding:16px 20px; background:transparent; border:1px solid rgba(235,224,196,0.3); color:var(--paper); font-family:'Noto Serif SC',serif; font-size:16px; outline:none;">
+      <button type="button" onclick="doSearch(document.getElementById('hero-search').value)" style="padding:16px 28px; background:var(--stamp); color:var(--paper); border:none; cursor:pointer; font-family:'Noto Sans SC'; font-size:14px;">检索档案</button>
+    </div>
+    <div style="margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute); letter-spacing:0.15em;">
+      EXAMPLES: ChatGPT 替代 · 共享单车 · 网瘾 · 区块链 · 二胎政策
+    </div>
+  </div>
+  <div class="hero-hint">↓ 或翻阅本馆精选</div>
 </section>
 
 <section class="archive-section">
@@ -215,8 +232,34 @@ __TOPIC_CARDS__
 <!-- Detail Views -->
 __DETAIL_VIEWS__
 
+<!-- 搜索结果视图(动态) -->
+<div id="search-view" class="detail-view">
+  <button class="back-btn" onclick="location.hash=''">← 返回本馆首页</button>
+  <section class="detail-hero">
+    <div class="container">
+      <div class="detail-stamp" id="search-stamp">SEARCHING…</div>
+      <h1 class="detail-title" id="search-title">检索中…</h1>
+      <div class="detail-cat" id="search-meta">正在调用知乎搜索 API</div>
+    </div>
+  </section>
+  <section class="timeline">
+    <div class="container">
+      <div id="search-loading" style="text-align:center; padding:80px 0; color:var(--mute); font-family:'JetBrains Mono',monospace; letter-spacing:0.2em;">
+        FETCHING DATA · 抓取 · 启发式年份分桶 · 渲染时间轴
+      </div>
+      <div id="search-results"></div>
+      <div id="search-publish" style="display:none; text-align:center; padding:48px 0;">
+        <button onclick="publishCurrentSearch()" style="padding:14px 36px; background:var(--stamp); color:var(--paper); border:none; cursor:pointer; font-family:'Noto Sans SC'; font-size:14px;">
+          📤 将本次检索发布到「黑客松脑洞补给站」想法
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <script>
 const DATA = __DATA_JSON__;
+let currentSearch = null;
 
 function showHome() {
   document.getElementById('home').style.display = 'block';
@@ -250,15 +293,158 @@ function setPredTab(topicId, scenario) {
   wrap.querySelector('.pred-body').textContent = text;
 }
 
-// 初始按 hash 决定显示
-window.addEventListener('hashchange', () => {
-  const h = location.hash.replace('#', '');
-  if (h && DATA[h]) showDetail(h);
-  else showHome();
-});
+// ───────── 搜索 ─────────
+
+function escHtml(s) {
+  return (s ?? '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function doSearch(q) {
+  console.log('[doSearch] called with:', q);
+  q = (q || '').trim();
+  if (!q) { console.warn('[doSearch] empty'); return; }
+  location.hash = 'search?q=' + encodeURIComponent(q);
+  document.getElementById('home').style.display = 'none';
+  document.querySelectorAll('.detail-view').forEach(d => d.classList.remove('active'));
+  document.getElementById('search-view').classList.add('active');
+  document.getElementById('search-title').textContent = q;
+  document.getElementById('search-stamp').textContent = 'CUSTOM SEARCH · 自定义检索';
+  document.getElementById('search-meta').textContent = '正在调用知乎搜索 API…';
+  document.getElementById('search-loading').style.display = 'block';
+  document.getElementById('search-results').innerHTML = '';
+  document.getElementById('search-publish').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  try {
+    const r = await fetch('/api/search?q=' + encodeURIComponent(q));
+    const data = await r.json();
+    currentSearch = data;
+    renderSearchResults(data);
+  } catch (e) {
+    document.getElementById('search-loading').innerHTML = '<span style="color:var(--stamp)">检索失败:' + escHtml(e.message) + '</span>';
+  }
+}
+
+function renderSearchResults(data) {
+  document.getElementById('search-loading').style.display = 'none';
+  const yc = data.year_count || 0;
+  const years = Object.keys(data.by_year || {}).map(Number).sort();
+  document.getElementById('search-meta').textContent = `${Object.values(data.by_year || {}).flat().length} 条档案 · ${yc} 个年份切片 · ${years[0] ?? '?'} → ${years.at(-1) ?? '?'}`;
+
+  let html = '';
+  for (const y of years) {
+    const items = data.by_year[y] || [];
+    const summary = data.summaries?.[y];
+    const archives = items.slice(0, 6).map(it => `
+      <div class="archive-item">
+        <div class="meta">${escHtml(it.content_type || '-')} · ${escHtml(it.author_name || '匿名')} · 赞 ${it.vote_up_count} · ${escHtml(it.edit_year ?? '?')}</div>
+        <a href="${escHtml(it.url)}" target="_blank" rel="noopener">
+          <div class="a-title">${escHtml(it.title)}</div>
+          <div class="a-text">${escHtml((it.content_text || '').slice(0, 180))}…</div>
+        </a>
+      </div>
+    `).join('');
+
+    html += `<article class="year-card">
+      <div class="year-label">${y}</div>
+      <div class="year-era">${items.length} 条原始档案</div>
+      ${summary ? `<blockquote class="year-quote">「${escHtml(summary.representative_quote)}…」<cite>— <a href="${escHtml(summary.url)}" target="_blank" rel="noopener">${escHtml(summary.author || '匿名')}</a></cite></blockquote>` : ''}
+      <div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目(原始回答 + 真实链接)</div>
+      <div class="year-archives">${archives}</div>
+    </article>`;
+  }
+  if (!html) {
+    html = '<div style="text-align:center; padding:80px 0; color:var(--mute); font-family:Noto Serif SC,serif; font-size:20px;">这个话题在知乎尚未找到时光档案<br><span style="font-size:12px;">请尝试更具体的关键词,如「ofo 退押金」「魏则西」</span></div>';
+  } else {
+    document.getElementById('search-publish').style.display = 'block';
+  }
+  html += `<div style="margin-top:48px; padding:24px; border:1px dashed rgba(8,16,31,0.2); font-size:12px; color:var(--mute); font-family:JetBrains Mono,monospace; letter-spacing:0.1em; text-align:center;">⚠ 自定义检索为实时数据,LLM 摘要功能因配额限制暂停,本馆精选 9 份档案已经过 AI 完整策展。</div>`;
+  document.getElementById('search-results').innerHTML = html;
+}
+
+// ───────── OAuth 登录 / 发布 ─────────
+
+async function loadMe() {
+  try {
+    const r = await fetch('/api/me');
+    const me = await r.json();
+    if (me.logged_in) {
+      document.getElementById('login-btn').style.display = 'none';
+      const u = document.getElementById('user-info');
+      u.style.display = 'inline-flex';
+      document.getElementById('user-name').textContent = me.name || '已登录';
+      if (me.avatar) document.getElementById('user-avatar').src = me.avatar;
+    }
+  } catch (e) {}
+}
+
+function loginZhihu() {
+  location.href = '/api/auth/zhihu';
+}
+
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  location.reload();
+}
+
+async function publishCurrentSearch() {
+  if (!currentSearch) return;
+  const q = currentSearch.q;
+  const years = Object.keys(currentSearch.summaries || {}).map(Number).sort();
+  if (years.length < 2) {
+    alert('当前检索数据不足,无法发布');
+    return;
+  }
+  const lines = years.map(y => `[${y}] ${currentSearch.summaries[y].representative_quote.slice(0, 50)}…`);
+  const content = `我在《时光档案馆》查了「${q}」的十五年观点演变:\n\n${lines.join('\n')}\n\n完整时间轴见:http://localhost:7777/#search?q=${encodeURIComponent(q)}\n\n#知乎黑客松2026 #时光档案馆`;
+  if (!confirm(`将发布以下想法到「黑客松脑洞补给站」圈子:\n\n${content.slice(0, 300)}…\n\n确认?`)) return;
+  try {
+    const r = await fetch('/api/publish/pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    const data = await r.json();
+    if (data.status === 0) {
+      alert('✅ 已发布!想法 token: ' + data.data?.content_token);
+    } else {
+      alert('❌ 发布失败:' + JSON.stringify(data));
+    }
+  } catch (e) {
+    alert('❌ 网络错误:' + e.message);
+  }
+}
+
+// ───────── 路由 ─────────
+
+function route() {
+  const h = location.hash.replace(/^#/, '');
+  if (h.startsWith('search?q=')) {
+    const q = decodeURIComponent(h.slice(9));
+    if (currentSearch?.q === q) {
+      // 已经在这个搜索页
+      document.getElementById('home').style.display = 'none';
+      document.querySelectorAll('.detail-view').forEach(d => d.classList.remove('active'));
+      document.getElementById('search-view').classList.add('active');
+    } else {
+      doSearch(q);
+    }
+  } else if (h && DATA[h]) {
+    showDetail(h);
+  } else {
+    showHome();
+  }
+}
+
+window.addEventListener('hashchange', route);
 window.addEventListener('load', () => {
-  const h = location.hash.replace('#', '');
-  if (h && DATA[h]) showDetail(h);
+  loadMe();
+  route();
+  // 登录成功提示
+  if (new URLSearchParams(location.search).get('login') === 'ok') {
+    alert('登录成功');
+    history.replaceState({}, '', location.pathname + location.hash);
+  }
 });
 </script>
 
