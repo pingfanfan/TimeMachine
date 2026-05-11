@@ -154,6 +154,58 @@ input[type="text"], textarea, input:not([type]), input#hero-search, input#nav-se
   transition: background 0.15s;
 }
 .nav-search-btn:hover { background: var(--stamp); }
+
+/* 手机 nav 压缩 */
+@media (max-width: 720px) {
+  .nav {
+    padding: 8px 14px;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .nav-title {
+    font-size: 16px;
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nav-title > span {
+    display: none !important;  /* 隐藏副标题「知乎编年观点演变史」*/
+  }
+  .nav-title::before {
+    margin-right: 4px;
+    font-size: 14px;
+  }
+  .nav-link {
+    display: none;  /* 隐藏「本馆首页」文字链接(点 logo 即可) */
+  }
+  .nav-search-wrap {
+    display: none;  /* 隐藏 nav 搜索框(用户用 hero 大搜索) */
+  }
+  #login-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  #user-info {
+    gap: 4px !important;
+  }
+  #user-info > button:first-child {
+    /* 「我的视角」按钮在窄屏只显示图标 */
+    font-size: 0;
+    padding: 5px 8px;
+  }
+  #user-info > button:first-child::before {
+    content: "👤";
+    font-size: 13px;
+  }
+  #user-name {
+    display: none;  /* 隐藏文字名,只留头像 */
+  }
+  #user-avatar {
+    width: 24px !important; height: 24px !important;
+  }
+}
 .nav-title { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; }
 .nav-link { font-size: 13px; color: rgba(8,16,31,0.7); text-decoration: none; margin-left: 24px; cursor: pointer; }
 .nav-link:hover { color: var(--stamp); }
@@ -803,7 +855,7 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 <body>
 
 <nav class="nav">
-  <div class="nav-title">时光档案馆 <span style="font-style:italic; font-size:13px; color:rgba(8,16,31,0.5); margin-left:8px;">知乎编年观点演变史</span></div>
+  <div class="nav-title" onclick="location.hash=''" style="cursor:pointer;">时光档案馆 <span style="font-style:italic; font-size:13px; color:rgba(8,16,31,0.5); margin-left:8px;">知乎编年观点演变史</span></div>
   <div style="display:flex; align-items:center; gap:8px;">
     <a class="nav-link" onclick="showHome()">本馆首页</a>
     <div class="nav-search-wrap">
