@@ -93,12 +93,67 @@ HTML = r"""<!DOCTYPE html>
   --era-new-bg: linear-gradient(135deg, rgba(23,81,153,0.07), rgba(74,124,89,0.04));
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.6; }
+html, body {
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  /* 纸张纹理 — 极淡的噪点 */
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(107,68,35,0.025) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 70% 60%, rgba(107,68,35,0.02) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 45% 85%, rgba(8,16,31,0.02) 0.5px, transparent 1.5px);
+  background-size: 60px 60px, 80px 80px, 100px 100px;
+}
+
+/* 自定义档案风光标 — 羽毛笔(SVG data URI) */
+* { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='28' viewBox='0 0 20 28'><path d='M2 2 L10 2 L18 8 L18 26 L2 26 Z' fill='%23EBE0C4' stroke='%23A8252F' stroke-width='1.2'/><path d='M10 2 L10 8 L18 8' fill='none' stroke='%23A8252F' stroke-width='1.2'/><line x1='5' y1='14' x2='15' y2='14' stroke='%236B4423' stroke-width='0.8'/><line x1='5' y1='18' x2='15' y2='18' stroke='%236B4423' stroke-width='0.8'/><line x1='5' y1='22' x2='12' y2='22' stroke='%236B4423' stroke-width='0.8'/></svg>") 4 4, auto; }
+a, button, .topic-card, .hotlist-card, .year-archive-toggle, .pred-tab, .toggle-other-btn,
+[onclick], [role="button"], input[type="submit"], input[type="button"] {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='none' stroke='%23A8252F' stroke-width='2'/><circle cx='16' cy='16' r='14' fill='%23A8252F' opacity='0.12'/><text x='16' y='15' text-anchor='middle' font-family='monospace' font-size='6' fill='%23A8252F' font-weight='700' letter-spacing='1'>ARCHIVE</text><text x='16' y='22' text-anchor='middle' font-family='monospace' font-size='7' fill='%23A8252F' font-weight='700'>✕</text></svg>") 16 16, pointer;
+}
+input[type="text"], textarea, input:not([type]), input#hero-search, input#nav-search {
+  cursor: text;
+}
 .serif { font-family: 'Noto Serif SC', Songti, serif; }
 .mono { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
 
 /* 顶部导航 */
 .nav { position: sticky; top: 0; z-index: 50; background: rgba(235,224,196,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(8,16,31,0.1); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+.nav-title::before {
+  content: "📁";
+  margin-right: 8px;
+  font-size: 16px;
+  filter: sepia(0.4);
+}
+.nav-search-wrap {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid rgba(8,16,31,0.25);
+  background: rgba(255,255,255,0.5);
+  margin-left: 12px;
+}
+.nav-search-wrap input {
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  font-family: 'Noto Sans SC';
+  font-size: 13px;
+  outline: none;
+  width: 180px;
+}
+.nav-search-btn {
+  background: var(--zhihu);
+  color: white;
+  border: none;
+  padding: 0 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.nav-search-btn:hover { background: var(--stamp); }
 .nav-title { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; }
 .nav-link { font-size: 13px; color: rgba(8,16,31,0.7); text-decoration: none; margin-left: 24px; cursor: pointer; }
 .nav-link:hover { color: var(--stamp); }
@@ -125,6 +180,8 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 }
 .hero > * { position: relative; z-index: 1; }
 .hero-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.3em; color: var(--mute); margin-bottom: 32px; }
+.hero-tag::before { content: "▸ "; color: var(--highlight); }
+.hero-tag::after { content: " ◂"; color: var(--highlight); }
 .hero-title { font-family: 'Noto Serif SC', serif; font-size: clamp(48px, 9vw, 112px); font-weight: 900; line-height: 1.05; }
 .hero-subtitle { font-family: 'Noto Serif SC', serif; font-style: italic; font-size: clamp(18px, 2.5vw, 28px); color: rgba(235,224,196,0.6); margin-top: 16px; }
 .hero-stats { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--mute); margin-top: 48px; }
@@ -266,19 +323,70 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .hotlist-card .cta-zhihu:hover { color: var(--highlight); }
 
 /* 网格 */
-.archive-section { padding: 96px 32px; }
-.archive-section .container { max-width: 1280px; margin: 0 auto; }
+.archive-section { padding: 96px 32px; position: relative; }
+.archive-section .container { max-width: 1280px; margin: 0 auto; position: relative; }
+/* 档案盒侧标签 */
+.archive-section .container::before {
+  content: "FILE / 卷宗";
+  position: absolute;
+  left: -32px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--mute);
+  opacity: 0.4;
+  padding: 8px 6px;
+  border-left: 2px solid var(--stamp);
+}
+@media (max-width: 900px) { .archive-section .container::before { display: none; } }
 .section-header { margin-bottom: 64px; }
 .section-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.3em; color: var(--mute); }
+.section-tag::before {
+  content: "▸ ";
+  color: var(--stamp);
+  letter-spacing: 0;
+}
 .section-title { font-family: 'Noto Serif SC', serif; font-size: 48px; font-weight: 700; margin-top: 8px; }
 .section-desc { font-family: 'Noto Serif SC', serif; font-style: italic; color: rgba(8,16,31,0.6); margin-top: 12px; font-size: 18px; }
 
 .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
 .featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 32px; }
-.topic-card { border: 1px solid rgba(8,16,31,0.15); background: var(--paper); padding: 32px; cursor: pointer; transition: border-color 0.2s; position: relative; }
-.topic-card.featured { padding: 40px; border-width: 2px; }
+.topic-card {
+  border: 1px solid rgba(8,16,31,0.15);
+  background: var(--paper);
+  padding: 32px 32px 32px 48px;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+  /* 档案纸张感:左边模拟活页夹打孔 */
+}
+/* 档案打孔(左边两个圆孔) */
+.topic-card::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 24px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(8,16,31,0.85);
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+}
+.topic-card::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  bottom: 24px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(8,16,31,0.85);
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+}
+.topic-card.featured { padding: 40px 40px 40px 56px; border-width: 2px; }
 .topic-card.featured h3 { font-size: 28px; }
-.topic-card:hover { border-color: var(--stamp); }
+.topic-card.featured::before { left: 18px; }
+.topic-card.featured::after { left: 18px; }
+.topic-card:hover { border-color: var(--stamp); transform: translateY(-2px); }
 
 .archive-section-secondary { padding-top: 0; padding-bottom: 96px; }
 .other-section-header { padding-top: 16px; border-top: 1px solid rgba(8,16,31,0.12); margin-bottom: 8px; }
@@ -698,7 +806,10 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
   <div class="nav-title">时光档案馆 <span style="font-style:italic; font-size:13px; color:rgba(8,16,31,0.5); margin-left:8px;">知乎编年观点演变史</span></div>
   <div style="display:flex; align-items:center; gap:8px;">
     <a class="nav-link" onclick="showHome()">本馆首页</a>
-    <input id="nav-search" placeholder="输入老话题…" style="border:1px solid rgba(8,16,31,0.2); padding:6px 12px; font-family:'Noto Sans SC'; font-size:13px; outline:none; width:180px;" onkeydown="if(event.key==='Enter')doSearch(this.value)">
+    <div class="nav-search-wrap">
+      <input id="nav-search" placeholder="检索任意老话题…" onkeydown="if(event.key==='Enter'){event.preventDefault(); doSearch(this.value);}">
+      <button class="nav-search-btn" type="button" onclick="doSearch(document.getElementById('nav-search').value)" title="点击检索">检索 ↗</button>
+    </div>
     <button class="nav-link" id="login-btn" onclick="loginZhihu()" style="border:1px solid rgba(8,16,31,0.2); background:transparent; padding:6px 12px; cursor:pointer; font-family:'Noto Sans SC';">登录知乎</button>
     <span id="user-info" style="display:none; align-items:center; gap:8px;">
       <button onclick="openMyPerspective()" style="background:var(--zhihu); color:white; border:none; padding:6px 14px; font-family:'Noto Sans SC'; font-size:13px; cursor:pointer; border-radius:2px;">👤 我的视角</button>
@@ -714,8 +825,15 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 
 <section class="hero">
   <div class="hero-tag">EST. 2026 · ZHIHU CHRONICLE · MUSEUM OF IDEAS</div>
-  <h1 class="hero-title">时光档案馆</h1>
-  <p class="hero-subtitle">知乎思想编年志</p>
+  <div style="display:inline-block; position:relative;">
+    <h1 class="hero-title">时光档案馆</h1>
+    <!-- 大红印章装饰(右上角) -->
+    <div style="position:absolute; top:-12px; right:-72px; transform:rotate(-12deg); border:3px solid var(--stamp); padding:6px 16px; font-family:'Noto Serif SC',serif; font-weight:900; font-size:14px; color:var(--stamp); letter-spacing:0.15em; background:rgba(168,37,47,0.08);">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:10px; display:block; letter-spacing:0.2em; opacity:0.7;">第 001 号</span>
+      已归档
+    </div>
+  </div>
+  <p class="hero-subtitle">知乎思想编年志 · ZHIHU CHRONICLE</p>
   <div class="hero-stats">
     馆藏 <strong>__TOPIC_COUNT__</strong> 份档案 · <strong>__QUOTE_COUNT__</strong> 份金句 · 跨越 <strong>__YEAR_SPAN__</strong> 年
   </div>
@@ -740,7 +858,7 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
       <div>
         <div class="hotlist-tag">LIVE FROM ZHIHU · 今日热榜 · 智能筛选</div>
         <h2 class="hotlist-title">让当下的热点,被时间检验</h2>
-        <p class="hotlist-desc">扫描知乎实时热榜,**只保留有跨年代讨论沉淀的话题**(一次性时事新闻被过滤掉),从每条热榜里提取核心议题关键词,一键进入时光机。</p>
+        <p class="hotlist-desc">扫描知乎实时热榜,<strong>只保留有跨年代讨论沉淀的话题</strong>(一次性时事新闻被过滤掉),从每条热榜里提取核心议题关键词,一键进入时光机。</p>
         <p class="hotlist-meta" id="hotlist-meta"></p>
       </div>
       <button id="hotlist-refresh" onclick="loadHotlist(true)" class="hotlist-refresh-btn">⟳ 刷新</button>
@@ -1357,17 +1475,17 @@ def render_year_card(topic: dict, year: int) -> str:
                 cite_html = f'<cite>— <a href="{esc(quote_url)}" target="_blank" rel="noopener">{esc(author)}</a></cite>'
             else:
                 cite_html = f'<cite>— {esc(author)}</cite>'
-        secondary_html = f'<p class="secondary">{esc(secondary)}</p>' if secondary else ""
-        anchor_html = f'<div class="year-anchor-line">📌 {esc(event_anchor)}</div>' if event_anchor and event_anchor not in era else ""
+        secondary_html = f'<p class="secondary">{esc_md(secondary)}</p>' if secondary else ""
+        anchor_html = f'<div class="year-anchor-line">📌 {esc_md(event_anchor)}</div>' if event_anchor and event_anchor not in era else ""
         archive_toggle = f'<div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目(原始回答 + 真实链接)</div><div class="year-archives">{archives_html}</div>' if has_archives else ""
         return f"""<article class="year-card {era_class}">
   {era_deco_svg}
   <div class="year-label">{year}</div>
-  <div class="year-era">{esc(era)}</div>
+  <div class="year-era">{esc_md(era)}</div>
   {anchor_html}
-  <blockquote class="year-quote">「{esc(quote)}」{cite_html}</blockquote>
+  <blockquote class="year-quote">「{esc_md(quote)}」{cite_html}</blockquote>
   <div class="year-views">
-    <p class="primary">{esc(primary)}</p>
+    <p class="primary">{esc_md(primary)}</p>
     {secondary_html}
   </div>
   {archive_toggle}
