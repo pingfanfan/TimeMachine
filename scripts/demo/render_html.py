@@ -176,6 +176,7 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
+.hotlist-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--highlight); letter-spacing: 0.15em; margin-top: 6px; }
 .hotlist-card {
   background: rgba(235,224,196,0.04);
   border: 1px solid rgba(235,224,196,0.12);
@@ -185,11 +186,11 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .hotlist-card:hover {
   border-color: var(--highlight);
-  background: rgba(241,182,68,0.06);
+  background: rgba(241,182,68,0.08);
   transform: translateY(-2px);
 }
 .hotlist-card .rank {
@@ -198,18 +199,41 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
   color: var(--highlight);
   letter-spacing: 0.15em;
 }
+.hotlist-card .from-title {
+  font-family: 'Noto Sans SC';
+  font-size: 11px;
+  color: rgba(235,224,196,0.45);
+  line-height: 1.6;
+  padding: 8px 10px;
+  background: rgba(8,16,31,0.4);
+  border-left: 2px solid rgba(235,224,196,0.25);
+}
+.hotlist-card .extract-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hotlist-card .extract-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(235,224,196,0.4);
+  letter-spacing: 0.15em;
+}
+.hotlist-card .extract-kw {
+  background: var(--highlight);
+  color: var(--ink);
+  padding: 3px 10px;
+  font-family: 'Noto Sans SC';
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 2px;
+}
 .hotlist-card h3 {
   font-family: 'Noto Serif SC', serif;
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 19px;
+  font-weight: 700;
   color: var(--paper);
-  line-height: 1.4;
-}
-.hotlist-card .summary {
-  font-family: 'Noto Sans SC';
-  font-size: 12px;
-  color: rgba(235,224,196,0.55);
-  line-height: 1.6;
+  line-height: 1.35;
   flex: 1;
 }
 .hotlist-card .cta {
@@ -217,7 +241,7 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
   font-size: 10px;
   color: var(--highlight);
   letter-spacing: 0.2em;
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px dashed rgba(235,224,196,0.15);
   display: flex;
   justify-content: space-between;
@@ -245,9 +269,9 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .topic-card.featured h3 { font-size: 28px; }
 .topic-card:hover { border-color: var(--stamp); }
 
-.archive-section-secondary { padding-top: 0; }
-.toggle-other-btn { width: 100%; padding: 22px; background: transparent; border: 1px dashed rgba(8,16,31,0.3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.2em; color: var(--ink); }
-.toggle-other-btn:hover { border-color: var(--stamp); color: var(--stamp); }
+.archive-section-secondary { padding-top: 0; padding-bottom: 96px; }
+.other-section-header { padding-top: 16px; border-top: 1px solid rgba(8,16,31,0.12); margin-bottom: 8px; }
+.other-section-header .section-tag { color: var(--mute); }
 
 .card-civic-pill { display: inline-block; margin-top: 10px; padding: 4px 10px; background: var(--stamp); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; }
 
@@ -295,10 +319,57 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 
 /* ━━━━━ 三时代视觉演变 · 远到近 ━━━━━ */
 
+/* 每个时代右上角的「时代质感装饰」SVG */
+.era-decoration {
+  position: absolute;
+  top: 16px; right: 20px;
+  width: 120px; height: 120px;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (max-width: 720px) { .era-decoration { width: 70px; height: 70px; top: 12px; right: 12px; opacity: 0.25; } }
+.year-card { position: relative; }
+.year-card > * { position: relative; z-index: 1; }
+
+/* 旧报纸网点(era-old) — 7x7 圆点矩阵,模拟报纸印刷网点 */
+.era-decoration-old circle { fill: var(--sepia); }
+
+/* 流体曲线(era-mid) — 移动互联网时代「数据流」隐喻 */
+.era-decoration-mid path { stroke: var(--zhihu); stroke-width: 1.2; fill: none; }
+.era-decoration-mid circle { fill: var(--zhihu); }
+
+/* 神经网络节点(era-new) — AI 时代 */
+.era-decoration-new line { stroke: url(#cyber-grad); stroke-width: 1; opacity: 0.7; }
+.era-decoration-new circle { fill: var(--cyber); }
+
+
+/* 时代分隔标记(在不同 era 之间显示) */
+.era-divider {
+  position: relative;
+  margin: 48px 0 24px;
+  padding: 16px 24px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+}
+.era-divider::before, .era-divider::after {
+  content: "";
+  position: absolute; top: 50%;
+  width: 38%; height: 1px;
+}
+.era-divider::before { left: 4%; background: linear-gradient(90deg, transparent, currentColor); }
+.era-divider::after { right: 4%; background: linear-gradient(90deg, currentColor, transparent); }
+.era-divider.to-mid { color: var(--zhihu); }
+.era-divider.to-new { color: var(--cyber); }
+
 /* 远年代(2008-2014)· 胶片墨迹复古 */
 .year-card.era-old {
-  filter: sepia(0.12) saturate(0.9);
+  filter: sepia(0.2) saturate(0.85) contrast(0.95);
   padding-left: 20px;
+  background: linear-gradient(90deg, rgba(107,68,35,0.05), transparent 60%);
+  border-top: 1px dotted rgba(107,68,35,0.18);
 }
 .year-card.era-old::before {
   background: var(--sepia);
@@ -311,6 +382,18 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
   color: var(--sepia);
   letter-spacing: -0.02em;
   /* 旧报纸标题微微倾斜 */
+  text-shadow: 1px 1px 0 rgba(107,68,35,0.08);
+}
+.year-card.era-old .year-quote::before {
+  content: "▪ 旧报纸纪年 · ";
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 0.2em;
+  color: var(--sepia);
+  opacity: 0.55;
+  display: block;
+  margin-bottom: 6px;
 }
 .year-card.era-old .year-quote {
   border-left-color: var(--sepia);
@@ -323,13 +406,29 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .year-card.era-old .year-views .primary::before { color: var(--sepia); }
 
 /* 中段(2015-2020)· 博客时代/知乎蓝 */
+.year-card.era-mid {
+  background: linear-gradient(90deg, rgba(23,81,153,0.04), transparent 70%);
+  border-top: 1px solid rgba(23,81,153,0.18);
+  padding: 48px 16px 56px;
+}
 .year-card.era-mid::before {
   background: var(--zhihu);
-  box-shadow: 0 0 0 4px rgba(23,81,153,0.15);
+  box-shadow: 0 0 0 4px rgba(23,81,153,0.18);
 }
 .year-card.era-mid .year-label {
   color: var(--zhihu);
   letter-spacing: -0.01em;
+}
+.year-card.era-mid .year-quote::before {
+  content: "▪ 博客年代 · ";
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 0.2em;
+  color: var(--zhihu);
+  opacity: 0.6;
+  display: block;
+  margin-bottom: 6px;
 }
 .year-card.era-mid .year-quote {
   border-left-color: var(--zhihu);
@@ -384,6 +483,20 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
   border-image: linear-gradient(180deg, var(--zhihu), var(--cyber)) 1;
   padding-left: 22px;
 }
+.year-card.era-new .year-quote::before {
+  content: "▸ 赛博纪年 · ";
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 0.2em;
+  background: linear-gradient(90deg, var(--zhihu), var(--cyber));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.85;
+  display: block;
+  margin-bottom: 6px;
+}
 .year-card.era-new .year-era {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
@@ -416,8 +529,12 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .mood-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--mute); }
 .mood-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mute); }
 .mood-svg { width: 100%; height: auto; display: block; }
-.mood-svg .mood-year { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: rgba(8,16,31,0.6); }
-.mood-svg .mood-event { font-family: 'Noto Sans SC'; font-size: 9px; opacity: 0.85; }
+.mood-svg .mood-year { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: rgba(8,16,31,0.7); font-weight: 600; }
+.mood-svg .mood-event { font-family: 'Noto Sans SC'; font-size: 11px; opacity: 0.95; font-weight: 500; }
+.mood-svg .era-zone-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em; opacity: 0.55; }
+.mood-svg .era-old-label { fill: var(--sepia); }
+.mood-svg .era-mid-label { fill: var(--zhihu); }
+.mood-svg .era-new-label { fill: var(--cyber); font-weight: 500; }
 .mood-legend-row { margin-top: 16px; padding-top: 16px; border-top: 1px dashed rgba(8,16,31,0.15); }
 .mood-legend-svg { max-width: 380px; height: 16px; display: block; }
 .mood-legend-svg .mood-legend { font-family: 'Noto Sans SC'; font-size: 12px; fill: var(--ink); }
@@ -519,9 +636,10 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
   <div class="container">
     <header class="hotlist-header">
       <div>
-        <div class="hotlist-tag">LIVE FROM ZHIHU · 今日热榜</div>
-        <h2 class="hotlist-title">点任何一条,看它的「时光机」</h2>
-        <p class="hotlist-desc">来自知乎实时热榜的话题,点击立即用搜索 API 拉历史回答 + 启发式年份分桶,生成专属时光轴。</p>
+        <div class="hotlist-tag">LIVE FROM ZHIHU · 今日热榜 · 智能筛选</div>
+        <h2 class="hotlist-title">让当下的热点,被时间检验</h2>
+        <p class="hotlist-desc">扫描知乎实时热榜,**只保留有跨年代讨论沉淀的话题**(一次性时事新闻被过滤掉),从每条热榜里提取核心议题关键词,一键进入时光机。</p>
+        <p class="hotlist-meta" id="hotlist-meta"></p>
       </div>
       <button id="hotlist-refresh" onclick="loadHotlist(true)" class="hotlist-refresh-btn">⟳ 刷新</button>
     </header>
@@ -546,11 +664,11 @@ __FEATURED_CARDS__
 
 <section class="archive-section archive-section-secondary">
   <div class="container">
-    <button id="toggle-other" class="toggle-other-btn" onclick="toggleOtherCollection()">
-      <span class="t1">↓ 展开馆藏的其余 __OTHER_COUNT__ 份档案</span>
-      <span class="t2" style="display:none">↑ 收起</span>
-    </button>
-    <div id="other-grid" class="topic-grid" style="display:none; margin-top:48px;">
+    <div class="other-section-header">
+      <div class="section-tag">FULL ARCHIVE · 馆藏全部 __OTHER_COUNT__ 份</div>
+      <p class="section-desc" style="font-size:14px;">非首推但同样有完整时间跨度的档案,可点开看完整时光机</p>
+    </div>
+    <div class="topic-grid" style="margin-top:32px;">
 __OTHER_CARDS__
     </div>
   </div>
@@ -667,15 +785,6 @@ function showDetail(id) {
     const title = el.querySelector('.detail-title')?.textContent || id;
     recordVisit(id, title);
   }
-}
-
-function toggleOtherCollection() {
-  const grid = document.getElementById('other-grid');
-  const btn = document.getElementById('toggle-other');
-  const open = grid.style.display !== 'none';
-  grid.style.display = open ? 'none' : 'grid';
-  btn.querySelector('.t1').style.display = open ? 'inline' : 'none';
-  btn.querySelector('.t2').style.display = open ? 'none' : 'inline';
 }
 
 function toggleArchives(btn) {
@@ -806,21 +915,30 @@ async function loadHotlist(forceRefresh = false) {
       loading.textContent = '热榜暂时拉不到 · 试试搜索栏';
       return;
     }
-    grid.innerHTML = items.slice(0, 10).map((it, i) => {
+    grid.innerHTML = items.slice(0, 8).map((it, i) => {
       const cleanTitle = (it.title || '').replace(/\s+/g, ' ').trim();
-      const searchQ = cleanTitle.replace(/[?？！!.。,，:：]/g, '').slice(0, 30);
+      const q = it.time_travel_query || it.matched_keyword;
+      const kw = it.matched_keyword || '';
       return `
-        <div class="hotlist-card" onclick="doSearch('${escHtml(searchQ).replace(/'/g, "\\'")}')">
+        <div class="hotlist-card" onclick="doSearch('${escHtml(q).replace(/'/g, "\\'")}')">
           <div class="rank">HOT-${String(i+1).padStart(2,'0')}</div>
-          <h3>${escHtml(cleanTitle)}</h3>
-          ${it.summary ? `<div class="summary">${escHtml(it.summary)}…</div>` : ''}
+          <div class="from-title">${escHtml(cleanTitle.slice(0, 60))}${cleanTitle.length>60?'…':''}</div>
+          <div class="extract-row">
+            <span class="extract-label">提取关键词</span>
+            <span class="extract-kw">${escHtml(kw)}</span>
+          </div>
+          <h3>看「${escHtml(q)}」的十五年</h3>
           <div class="cta">
-            <span>→ 看它的时光机</span>
-            <a class="cta-zhihu" href="${escHtml(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">知乎原帖 ↗</a>
+            <span>→ 进入时光机</span>
+            <a class="cta-zhihu" href="${escHtml(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">原帖 ↗</a>
           </div>
         </div>
       `;
     }).join('');
+    // 显示扫描统计
+    const meta = data.total_scanned ? `扫描 ${data.total_scanned} 条热榜 → 过滤出 ${items.length} 条有时光机价值的话题` : '';
+    const metaEl = document.getElementById('hotlist-meta');
+    if (metaEl) metaEl.textContent = meta;
     loading.style.display = 'none';
     grid.style.display = 'grid';
   } catch (e) {
@@ -1073,6 +1191,56 @@ def render_year_card(topic: dict, year: int) -> str:
     else:
         era_class = "era-new"
 
+    # 时代装饰 SVG(每个年份卡右上角的「时代质感」)
+    if era_class == "era-old":
+        # 7x7 报纸网点
+        dots = ""
+        for row in range(7):
+            for col in range(7):
+                cx = 8 + col * 11
+                cy = 8 + row * 11
+                # 不规则强度,模拟报纸印刷
+                r = 1.5 + ((col * 3 + row) % 3) * 0.6
+                dots += f'<circle cx="{cx}" cy="{cy}" r="{r}"/>'
+        era_deco_svg = f'<svg class="era-decoration era-decoration-old" viewBox="0 0 80 80">{dots}</svg>'
+    elif era_class == "era-mid":
+        # 流体曲线 + 节点 — 移动互联网数据流
+        era_deco_svg = (
+            '<svg class="era-decoration era-decoration-mid" viewBox="0 0 80 80">'
+            '<path d="M 10 20 Q 25 8, 40 30 T 70 50" />'
+            '<path d="M 10 50 Q 30 35, 50 55 T 75 35" opacity="0.6"/>'
+            '<circle cx="10" cy="20" r="2.5"/><circle cx="40" cy="30" r="2.5"/>'
+            '<circle cx="70" cy="50" r="2.5"/><circle cx="50" cy="55" r="2"/>'
+            '</svg>'
+        )
+    else:
+        # 神经网络节点 — AI 时代
+        era_deco_svg = (
+            '<svg class="era-decoration era-decoration-new" viewBox="0 0 80 80">'
+            '<defs><linearGradient id="cyber-grad" x1="0" y1="0" x2="1" y2="1">'
+            f'<stop offset="0%" stop-color="{MOOD_COLORS["hope"]}"/>'
+            f'<stop offset="100%" stop-color="{MOOD_COLORS["concern"]}"/>'
+            '</linearGradient></defs>'
+            # 三层节点
+            '<line x1="14" y1="20" x2="40" y2="14"/>'
+            '<line x1="14" y1="20" x2="40" y2="40"/>'
+            '<line x1="14" y1="20" x2="40" y2="60"/>'
+            '<line x1="14" y1="40" x2="40" y2="14"/>'
+            '<line x1="14" y1="40" x2="40" y2="40"/>'
+            '<line x1="14" y1="40" x2="40" y2="60"/>'
+            '<line x1="14" y1="60" x2="40" y2="40"/>'
+            '<line x1="14" y1="60" x2="40" y2="60"/>'
+            '<line x1="40" y1="14" x2="68" y2="30"/>'
+            '<line x1="40" y1="40" x2="68" y2="30"/>'
+            '<line x1="40" y1="40" x2="68" y2="55"/>'
+            '<line x1="40" y1="60" x2="68" y2="55"/>'
+            # nodes
+            '<circle cx="14" cy="20" r="2.5"/><circle cx="14" cy="40" r="2.5"/><circle cx="14" cy="60" r="2.5"/>'
+            '<circle cx="40" cy="14" r="3"/><circle cx="40" cy="40" r="3"/><circle cx="40" cy="60" r="3"/>'
+            '<circle cx="68" cy="30" r="3.5"/><circle cx="68" cy="55" r="3.5"/>'
+            '</svg>'
+        )
+
     # 情况 1: 有 LLM summary → 完整卡
     if has_summary:
         quote = s.get("golden_quote", "—")
@@ -1091,6 +1259,7 @@ def render_year_card(topic: dict, year: int) -> str:
         anchor_html = f'<div class="year-anchor-line">📌 {esc(event_anchor)}</div>' if event_anchor and event_anchor not in era else ""
         archive_toggle = f'<div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目(原始回答 + 真实链接)</div><div class="year-archives">{archives_html}</div>' if has_archives else ""
         return f"""<article class="year-card {era_class}">
+  {era_deco_svg}
   <div class="year-label">{year}</div>
   <div class="year-era">{esc(era)}</div>
   {anchor_html}
@@ -1157,7 +1326,7 @@ MOOD_LABELS_CN = {
 
 
 def render_mood_track_svg(t: dict) -> str:
-    """情绪轨迹图:横向年份色块 + 关键事件标注"""
+    """情绪轨迹图:横向年份色块 + 关键事件 45 度斜排标注 + 三时代分隔"""
     mt = t.get("mood_track", {})
     if not mt:
         return ""
@@ -1169,22 +1338,50 @@ def render_mood_track_svg(t: dict) -> str:
     min_y, max_y = min(years), max(years)
     span = max_y - min_y if max_y > min_y else 1
 
-    # SVG 尺寸
-    W = 720
-    H = 240
-    PAD_L = 24
-    PAD_R = 24
+    # SVG 尺寸 — 加大底部 padding 给倾斜事件文字
+    W = 760
+    H = 360
+    PAD_L = 28
+    PAD_R = 28
     PAD_T = 40
-    PAD_B = 80
+    PAD_B = 200   # 大幅加大,留给 45° 事件文字
     plot_w = W - PAD_L - PAD_R
     plot_h = H - PAD_T - PAD_B
 
     def x_at(year):
         return PAD_L + (year - min_y) / span * plot_w
 
-    # 年度块宽度(基于年份间距)
-    # 单年宽度 = plot_w / (span)
     cell_w = plot_w / max(span, 1) if span else 32
+
+    # 三时代分隔(2014/2020 边界)
+    era_dividers = []
+    era_labels = []
+    for boundary, label in [(2014.5, ""), (2020.5, "")]:
+        if min_y <= boundary <= max_y:
+            x = x_at(boundary)
+            era_dividers.append(
+                f'<line x1="{x:.1f}" y1="{PAD_T}" x2="{x:.1f}" y2="{PAD_T + plot_h + 18}" stroke="rgba(8,16,31,0.25)" stroke-dasharray="3,3" />'
+            )
+    # 三时代背景色带
+    era_zones = []
+    ZONE_OLD = (min_y, min(2014, max_y))
+    ZONE_MID = (max(2015, min_y), min(2020, max_y)) if 2015 <= max_y and min_y <= 2020 else None
+    ZONE_NEW = (max(2021, min_y), max_y) if max_y >= 2021 else None
+    if ZONE_OLD[1] >= ZONE_OLD[0]:
+        x1 = x_at(ZONE_OLD[0]) - cell_w / 2
+        x2 = x_at(ZONE_OLD[1]) + cell_w / 2
+        era_zones.append(f'<rect x="{x1:.1f}" y="{PAD_T}" width="{x2-x1:.1f}" height="{plot_h}" fill="rgba(107,68,35,0.06)" />')
+        era_zones.append(f'<text x="{(x1+x2)/2:.1f}" y="{PAD_T - 12}" text-anchor="middle" class="era-zone-label era-old-label">2008-2014 · 旧报纸</text>')
+    if ZONE_MID:
+        x1 = x_at(ZONE_MID[0]) - cell_w / 2
+        x2 = x_at(ZONE_MID[1]) + cell_w / 2
+        era_zones.append(f'<rect x="{x1:.1f}" y="{PAD_T}" width="{x2-x1:.1f}" height="{plot_h}" fill="rgba(23,81,153,0.06)" />')
+        era_zones.append(f'<text x="{(x1+x2)/2:.1f}" y="{PAD_T - 12}" text-anchor="middle" class="era-zone-label era-mid-label">2015-2020 · 博客时代</text>')
+    if ZONE_NEW:
+        x1 = x_at(ZONE_NEW[0]) - cell_w / 2
+        x2 = x_at(ZONE_NEW[1]) + cell_w / 2
+        era_zones.append(f'<rect x="{x1:.1f}" y="{PAD_T}" width="{x2-x1:.1f}" height="{plot_h}" fill="rgba(74,124,89,0.07)" />')
+        era_zones.append(f'<text x="{(x1+x2)/2:.1f}" y="{PAD_T - 12}" text-anchor="middle" class="era-zone-label era-new-label">2021-2026 · 赛博</text>')
 
     blocks = []
     labels = []
@@ -1199,25 +1396,28 @@ def render_mood_track_svg(t: dict) -> str:
             mood, intensity, evt = "calm", 0.3, ""
 
         color = MOOD_COLORS.get(mood, "#5A6478")
-        height = 15 + intensity * (plot_h - 20)  # 强度 → 高度
+        height = 15 + intensity * (plot_h - 20)
         x = x_at(year) - cell_w / 2 + 2
         w = cell_w - 4
         y_pos = PAD_T + plot_h - height
 
         blocks.append(
-            f'<rect x="{x:.1f}" y="{y_pos:.1f}" width="{w:.1f}" height="{height:.1f}" fill="{color}" opacity="{0.5 + intensity * 0.45:.2f}" rx="2"></rect>'
+            f'<rect x="{x:.1f}" y="{y_pos:.1f}" width="{w:.1f}" height="{height:.1f}" fill="{color}" opacity="{0.55 + intensity * 0.4:.2f}" rx="2"></rect>'
         )
 
         # 年份标签
-        if year % 2 == 0 or year in (min_y, max_y) or intensity >= 0.8:
-            labels.append(
-                f'<text x="{x_at(year):.1f}" y="{H - PAD_B + 18}" text-anchor="middle" class="mood-year">{year}</text>'
-            )
+        labels.append(
+            f'<text x="{x_at(year):.1f}" y="{H - PAD_B + 18}" text-anchor="middle" class="mood-year">{year}</text>'
+        )
 
-        # 强度峰值显示事件文字
-        if evt and intensity >= 0.6:
+        # 事件文字 45 度斜排,所有有事件且强度 >= 0.4 的都展示
+        if evt and intensity >= 0.4:
+            event_x = x_at(year)
+            event_y = H - PAD_B + 32
             events.append(
-                f'<text x="{x_at(year):.1f}" y="{H - PAD_B + 38}" text-anchor="middle" class="mood-event" fill="{color}">{esc(evt)}</text>'
+                f'<text x="{event_x:.1f}" y="{event_y}" '
+                f'transform="rotate(45 {event_x:.1f} {event_y})" '
+                f'class="mood-event" fill="{color}">{esc(evt)}</text>'
             )
 
     legend = "".join(
@@ -1231,10 +1431,12 @@ def render_mood_track_svg(t: dict) -> str:
     return f"""<section class="mood-chart-section">
   <header class="mood-header">
     <span class="mood-tag">EMOTION TIMELINE · 情绪轨迹</span>
-    <span class="mood-meta">{len(items)} 年数据 · 色块高度 = 讨论强度</span>
+    <span class="mood-meta">{len(items)} 年数据 · 色块高度 = 讨论强度 · 横向看时代,纵向看情绪</span>
   </header>
   <svg viewBox="0 0 {W} {H}" class="mood-svg" preserveAspectRatio="xMidYMid meet">
-    <line x1="{PAD_L}" y1="{PAD_T + plot_h:.1f}" x2="{W - PAD_R}" y2="{PAD_T + plot_h:.1f}" stroke="rgba(8,16,31,0.15)"></line>
+    {''.join(era_zones)}
+    {''.join(era_dividers)}
+    <line x1="{PAD_L}" y1="{PAD_T + plot_h:.1f}" x2="{W - PAD_R}" y2="{PAD_T + plot_h:.1f}" stroke="rgba(8,16,31,0.25)"></line>
     {''.join(blocks)}
     {''.join(labels)}
     {''.join(events)}
@@ -1246,10 +1448,27 @@ def render_mood_track_svg(t: dict) -> str:
 
 
 def render_detail_view(t: dict) -> str:
-    summary_years = set(int(y) for y in t.get("year_summaries", {}).keys())
+    summary_years = sorted(int(y) for y in t.get("year_summaries", {}).keys())
     # 只展示有 LLM summary 的年份 — 体现"时间跨度"靠 mood_track 可视化
-    cards = [render_year_card(t, y) for y in sorted(summary_years)]
-    cards = [c for c in cards if c]
+    cards = []
+    prev_era = None
+    for y in summary_years:
+        if y <= 2014:
+            cur_era = "old"
+        elif y <= 2020:
+            cur_era = "mid"
+        else:
+            cur_era = "new"
+        # 在 era 切换处插分隔标记
+        if prev_era and prev_era != cur_era:
+            if cur_era == "mid":
+                cards.append('<div class="era-divider to-mid">— ENTERING · 2015 · 博客时代 —</div>')
+            elif cur_era == "new":
+                cards.append('<div class="era-divider to-new">— ENTERING · 2021 · 赛博时代 —</div>')
+        rendered = render_year_card(t, y)
+        if rendered:
+            cards.append(rendered)
+            prev_era = cur_era
 
     pred = render_prediction(t) if t.get("prediction") else ""
     civic = render_civic_impact(t)
