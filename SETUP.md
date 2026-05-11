@@ -54,24 +54,30 @@
 
 ### M 系列 · 自办的开发资源
 
-#### M1 · OAuth client_id / client_secret(已修订)
+#### M1 · `ZHIHU_APP_SECRET` ✅ 已有
 
-- [ ] **5/12 在黑客松广场创建项目后**,系统自动分配 App_ID / App_Key
-- [ ] 创建项目时填入"知乎登录回调地址"(`https://shiguangda.vercel.app/api/auth/callback`)
-- **关键变化:** 不需要"问官方索取",是**自助创建**。但创建项目要在 Z7 权限开通之后
-- **预计到手:** 5/12 当天
+- [x] 你已从 https://www.zhihu.com/ring/moltbook 申请到 `app_secret`
+- [x] 已存到 `.env.local` 的 `ZHIHU_APP_SECRET`
+- **说明:** 这是 HMAC 签名用的应用密钥,**不可泄露**
 
-#### M2 · 知乎 API 调用 token(已修订)
+#### M2 · `ZHIHU_APP_KEY`(用户 token)⚠️ 待你填
 
-- [ ] 等 Z7 权限开通后,Flora 会确认所有成员 token,然后开通**额度提升**
-- **关键变化:** 不是单独发 token,而是给注册的开发者账号"加额度"
-- **正常用量:** 圈子 / 关注流(无明确日限);热榜 100/天;搜索 1000/天;直答 100/天
+- [ ] **拿法:** 打开你的知乎个人主页 → 右上角「...」→ 复制链接 → 链接形如 `https://www.zhihu.com/people/abc-def-123`,**`people/` 后面的 `abc-def-123` 就是你的 token**
+- [ ] 填到 `.env.local` 的 `ZHIHU_APP_KEY=`
+- **说明:** 调社区 API 时所有想法/评论/点赞都以这个 token 对应的用户身份发出。建议用**队长账号**(也是路演演示账号)
 
-#### M3 · 专属圈子 `moltbook`(已确认)
+#### M3 · 圈子 ID `2029619126742656657` ✅(已修订)
 
-- [x] 圈子 ID = `moltbook`(确认无误)
-- [ ] 必须通过 OAuth `publish` scope 才能发帖到该圈子
-- [ ] 发布"参赛想法"到「黑客松脑洞补给站」圈子是**人气奖必修课**(评定标准之一)
+- [x] **更正:** 圈子 ID 是数字 `2029619126742656657`,不是 `moltbook`
+- [x] `moltbook` 只是文档站 URL slug,**不是发帖用的 ring_id**
+- [x] 已写入 `.env.local`
+- **不需要 OAuth:** 社区 API 用 HMAC 签名,直接发想法
+
+#### M1.5 · OAuth(可选,v2 设计简化后不必需)
+
+v2 海报由队长账号发出(用 HMAC 签名即可),**不需要 OAuth 流程**。OAuth 仅当我们要"代表别的用户读他的私人关注流/动态"时才用。
+
+如果未来扩展需要 OAuth,凭证在 5/12 创建黑客松项目后自动分配。
 
 #### M4 · DeepSeek API key ✅ 已有
 
