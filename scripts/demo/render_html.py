@@ -18,10 +18,18 @@ DIST = ROOT / "dist"
 DIST.mkdir(exist_ok=True)
 
 
+def load_curation() -> dict:
+    p = DATA_DIR / "curation.json"
+    if p.exists():
+        return json.loads(p.read_text(encoding="utf-8"))
+    return {}
+
+
 def load_topics() -> list[dict]:
+    curation = load_curation()
     out = []
     for f in sorted(DATA_DIR.glob("*.json")):
-        if f.name.startswith("_"):
+        if f.name.startswith("_") or f.name == "curation.json":
             continue
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
@@ -29,6 +37,12 @@ def load_topics() -> list[dict]:
             if len(d.get("year_summaries", {})) < 2:
                 print(f"skip {f.name}: only {len(d.get('year_summaries', {}))} year")
                 continue
+            # 注入策展元数据
+            tid = d["id"]
+            if tid in curation:
+                d["civic_impact"] = curation[tid].get("civic_impact")
+                d["event_anchors"] = curation[tid].get("event_anchors", {})
+                d["mood_track"] = curation[tid].get("mood_track", {})
             out.append(d)
         except Exception as e:
             print(f"skip {f}: {e}")
@@ -90,8 +104,20 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .section-desc { font-family: 'Noto Serif SC', serif; font-style: italic; color: rgba(8,16,31,0.6); margin-top: 12px; font-size: 18px; }
 
 .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 32px; }
 .topic-card { border: 1px solid rgba(8,16,31,0.15); background: var(--paper); padding: 32px; cursor: pointer; transition: border-color 0.2s; position: relative; }
+.topic-card.featured { padding: 40px; border-width: 2px; }
+.topic-card.featured h3 { font-size: 28px; }
 .topic-card:hover { border-color: var(--stamp); }
+
+.archive-section-secondary { padding-top: 0; }
+.toggle-other-btn { width: 100%; padding: 22px; background: transparent; border: 1px dashed rgba(8,16,31,0.3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.2em; color: var(--ink); }
+.toggle-other-btn:hover { border-color: var(--stamp); color: var(--stamp); }
+
+.card-civic-pill { display: inline-block; margin-top: 10px; padding: 4px 10px; background: var(--stamp); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; }
+
+.mini-mood-track { display: flex; gap: 1px; margin-top: 20px; height: 8px; }
+.mt-cell { flex: 1; border-radius: 1px; }
 .topic-stamp { position: absolute; top: 16px; right: 16px; border: 2px solid var(--stamp); color: var(--stamp); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; transform: rotate(-3deg); opacity: 0.9; letter-spacing: 0.15em; }
 .topic-card .cat { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mute); letter-spacing: 0.2em; }
 .topic-card h3 { font-family: 'Noto Serif SC', serif; font-size: 22px; font-weight: 700; margin-top: 8px; padding-right: 70px; line-height: 1.3; }
@@ -144,6 +170,33 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .archive-item a:hover { color: var(--stamp); }
 .archive-item .a-title { font-family: 'Noto Serif SC', serif; font-size: 16px; font-weight: 500; margin-top: 4px; }
 .archive-item .a-text { font-size: 13px; color: rgba(8,16,31,0.65); line-height: 1.6; margin-top: 6px; }
+
+/* 情绪轨迹图 */
+.mood-chart-section { background: rgba(8,16,31,0.04); padding: 32px; margin: 32px 0 56px; border: 1px solid rgba(8,16,31,0.08); }
+.mood-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+.mood-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--mute); }
+.mood-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mute); }
+.mood-svg { width: 100%; height: auto; display: block; }
+.mood-svg .mood-year { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: rgba(8,16,31,0.6); }
+.mood-svg .mood-event { font-family: 'Noto Sans SC'; font-size: 9px; opacity: 0.85; }
+.mood-legend-row { margin-top: 16px; padding-top: 16px; border-top: 1px dashed rgba(8,16,31,0.15); }
+.mood-legend-svg { max-width: 380px; height: 16px; display: block; }
+.mood-legend-svg .mood-legend { font-family: 'Noto Sans SC'; font-size: 12px; fill: var(--ink); }
+
+/* 简化年份卡(只有事件锚点) */
+.year-card-thin { padding: 24px 0; opacity: 0.85; }
+.year-card-thin::before { content: ""; position: absolute; left: -34px; top: 36px; width: 10px; height: 10px; border-radius: 50%; background: rgba(8,16,31,0.3); }
+.year-label-thin { font-size: 36px; opacity: 0.55; }
+.year-anchor-only { margin-top: 4px; font-family: 'Noto Sans SC'; font-size: 14px; color: rgba(8,16,31,0.55); }
+.year-anchor-line { margin-top: 12px; padding: 8px 14px; background: rgba(168,37,47,0.08); border-left: 2px solid var(--stamp); font-family: 'Noto Sans SC'; font-size: 13px; color: rgba(8,16,31,0.7); }
+
+/* Civic Impact */
+.civic-impact { background: var(--paper); border: 1px solid var(--stamp); padding: 56px 40px; margin: 64px 0 32px; position: relative; }
+.civic-impact .ci-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--stamp); }
+.civic-impact .ci-pill { display: inline-block; margin-top: 12px; padding: 4px 12px; background: var(--stamp); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; }
+.civic-impact .ci-title { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 700; margin-top: 20px; line-height: 1.35; }
+.civic-impact .ci-body { font-family: 'Noto Serif SC', serif; font-size: 16px; line-height: 1.85; color: rgba(8,16,31,0.85); margin-top: 24px; }
+.civic-impact .ci-sign { margin-top: 28px; font-family: 'Noto Sans SC'; font-size: 13px; color: var(--mute); text-align: right; }
 
 /* 2029 预测 */
 .prediction { background: var(--ink); color: var(--paper); padding: 64px 40px; margin-top: 48px; border-radius: 4px; }
@@ -213,12 +266,24 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 <section class="archive-section">
   <div class="container">
     <header class="section-header">
-      <div class="section-tag">FEATURED ARCHIVES · 精选档案</div>
-      <h2 class="section-title">本馆精选 __TOPIC_COUNT__ 份档案</h2>
-      <p class="section-desc">每一份档案,都是一个问题在知乎被讨论了多少年的故事。点击任何一份进入它的时光轴。</p>
+      <div class="section-tag">CURATOR'S TOP 3 · 策展人首推</div>
+      <h2 class="section-title">本馆三大代表档案</h2>
+      <p class="section-desc">每一份都体现了知乎社区的「持续讨论 → 立法 / 政策 / 制度回应」的真实路径。点击任何一份,翻开它的情绪轨迹。</p>
     </header>
-    <div class="topic-grid">
-__TOPIC_CARDS__
+    <div class="featured-grid">
+__FEATURED_CARDS__
+    </div>
+  </div>
+</section>
+
+<section class="archive-section archive-section-secondary">
+  <div class="container">
+    <button id="toggle-other" class="toggle-other-btn" onclick="toggleOtherCollection()">
+      <span class="t1">↓ 展开馆藏的其余 __OTHER_COUNT__ 份档案</span>
+      <span class="t2" style="display:none">↑ 收起</span>
+    </button>
+    <div id="other-grid" class="topic-grid" style="display:none; margin-top:48px;">
+__OTHER_CARDS__
     </div>
   </div>
 </section>
@@ -275,6 +340,15 @@ function showDetail(id) {
     el.classList.add('active');
     window.scrollTo(0, 0);
   }
+}
+
+function toggleOtherCollection() {
+  const grid = document.getElementById('other-grid');
+  const btn = document.getElementById('toggle-other');
+  const open = grid.style.display !== 'none';
+  grid.style.display = open ? 'none' : 'grid';
+  btn.querySelector('.t1').style.display = open ? 'inline' : 'none';
+  btn.querySelector('.t2').style.display = open ? 'none' : 'inline';
 }
 
 function toggleArchives(btn) {
@@ -452,27 +526,49 @@ window.addEventListener('load', () => {
 </html>"""
 
 
-def render_topic_card(t: dict) -> str:
+def render_topic_card(t: dict, featured: bool = False) -> str:
     years = sorted([int(y) for y in t.get("year_summaries", {}).keys()])
+    mt_years = sorted([int(y) for y in t.get("mood_track", {}).keys()]) or years
     early_year = years[0] if years else None
     late_year = years[-1] if years else None
     early_q = t["year_summaries"].get(str(early_year), {}).get("golden_quote", "") if early_year else ""
     late_q = t["year_summaries"].get(str(late_year), {}).get("golden_quote", "") if late_year else ""
     raw_count = len(t.get("raw_answers", []))
     quote_count = len(t.get("year_summaries", {}))
-    yr_range = f"{early_year}–{late_year}" if early_year and late_year else "—"
-    return f"""<article class="topic-card" onclick="location.hash='{esc(t['id'])}'">
+    yr_range = f"{min(mt_years)}–{max(mt_years)}" if mt_years else "—"
+    civic = t.get("civic_impact") or {}
+    civic_tag = civic.get("tag", "")
+
+    # 迷你情绪条(从 mood_track 拿)
+    mini_track = ""
+    mt = t.get("mood_track", {})
+    if mt:
+        items = sorted(mt.items(), key=lambda kv: int(kv[0]))
+        cells = []
+        for y, p in items:
+            mood = p[0] if isinstance(p, list) and len(p) > 0 else "calm"
+            intensity = float(p[1]) if isinstance(p, list) and len(p) > 1 else 0.3
+            color = MOOD_COLORS.get(mood, "#5A6478")
+            cells.append(f'<span class="mt-cell" style="background:{color}; opacity:{0.4 + intensity * 0.55:.2f}"></span>')
+        mini_track = f'<div class="mini-mood-track">{"".join(cells)}</div>'
+
+    klass = "topic-card featured" if featured else "topic-card"
+    civic_html = f'<div class="card-civic-pill">{esc(civic_tag)}</div>' if civic_tag and featured else ""
+
+    return f"""<article class="{klass}" onclick="location.hash='{esc(t['id'])}'">
   <div class="topic-stamp">ARCHIVE-{(hash(t['id']) % 1000):03d}</div>
   <div class="cat">{esc(t.get('category','—'))} · {esc(yr_range)}</div>
   <h3>{esc(t['title'])}</h3>
+  {civic_html}
   <div class="quotes">
     <div class="quote-old">「{esc(early_q)}」<span class="year-tag">{early_year}</span></div>
     <div class="quote-new">「{esc(late_q)}」<span class="year-tag">{late_year}</span></div>
   </div>
+  {mini_track}
   <div class="data-bar">
     <span>{raw_count} 条档案</span>
-    <span>{quote_count} 个年份</span>
-    <span>{len(t.get('keywords', []))} 个关键词</span>
+    <span>{quote_count} 个切片</span>
+    <span>跨度 {(max(mt_years) - min(mt_years)) if mt_years and len(mt_years) > 1 else 0} 年</span>
   </div>
 </article>"""
 
@@ -500,33 +596,64 @@ def render_archives_in_year(topic: dict, year: int) -> str:
 
 def render_year_card(topic: dict, year: int) -> str:
     s = topic["year_summaries"].get(str(year), {})
-    quote = s.get("golden_quote", "—")
-    primary = s.get("primary_view", "")
-    secondary = s.get("secondary_view", "")
-    era = s.get("era_caption", "")
-    author = s.get("quote_author", "")
-    quote_url = s.get("quote_url", "")
-    cite_html = ""
-    if author:
-        if quote_url:
-            cite_html = f'<cite>— <a href="{esc(quote_url)}" target="_blank" rel="noopener">{esc(author)}</a></cite>'
-        else:
-            cite_html = f'<cite>— {esc(author)}</cite>'
+    event_anchor = topic.get("event_anchors", {}).get(str(year))
+
+    has_summary = bool(s)
     archives_html = render_archives_in_year(topic, year)
-    secondary_html = f'<p class="secondary">{esc(secondary)}</p>' if secondary else ""
-    return f"""<article class="year-card">
+    has_archives = bool(archives_html.strip())
+
+    # 情况 1: 有 LLM summary → 完整卡
+    if has_summary:
+        quote = s.get("golden_quote", "—")
+        primary = s.get("primary_view", "")
+        secondary = s.get("secondary_view", "")
+        era = s.get("era_caption", "") or event_anchor or ""
+        author = s.get("quote_author", "")
+        quote_url = s.get("quote_url", "")
+        cite_html = ""
+        if author:
+            if quote_url:
+                cite_html = f'<cite>— <a href="{esc(quote_url)}" target="_blank" rel="noopener">{esc(author)}</a></cite>'
+            else:
+                cite_html = f'<cite>— {esc(author)}</cite>'
+        secondary_html = f'<p class="secondary">{esc(secondary)}</p>' if secondary else ""
+        anchor_html = f'<div class="year-anchor-line">📌 {esc(event_anchor)}</div>' if event_anchor and event_anchor not in era else ""
+        archive_toggle = f'<div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目(原始回答 + 真实链接)</div><div class="year-archives">{archives_html}</div>' if has_archives else ""
+        return f"""<article class="year-card">
   <div class="year-label">{year}</div>
   <div class="year-era">{esc(era)}</div>
+  {anchor_html}
   <blockquote class="year-quote">「{esc(quote)}」{cite_html}</blockquote>
   <div class="year-views">
     <p class="primary">{esc(primary)}</p>
     {secondary_html}
   </div>
-  <div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目(原始回答 + 真实链接)</div>
-  <div class="year-archives">
-    {archives_html}
-  </div>
+  {archive_toggle}
 </article>"""
+
+    # 情况 2: 没 summary,但有 event_anchor 或 archives → 简化卡
+    if event_anchor or has_archives:
+        archive_toggle = f'<div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目</div><div class="year-archives">{archives_html}</div>' if has_archives else ""
+        return f"""<article class="year-card year-card-thin">
+  <div class="year-label year-label-thin">{year}</div>
+  <div class="year-anchor-only">{esc(event_anchor or '此年档案待补')}</div>
+  {archive_toggle}
+</article>"""
+
+    return ""
+
+
+def render_civic_impact(topic: dict) -> str:
+    ci = topic.get("civic_impact")
+    if not ci:
+        return ""
+    return f"""<section class="civic-impact">
+  <div class="ci-tag">CIVIC IMPACT · 知乎的积极作用</div>
+  <div class="ci-pill">{esc(ci.get('tag', ''))}</div>
+  <h2 class="ci-title">{esc(ci['title'])}</h2>
+  <div class="ci-body">{esc(ci['body']).replace(chr(10), '<br><br>')}</div>
+  <div class="ci-sign">— 策展人 · 看山</div>
+</section>"""
 
 
 def render_prediction(t: dict) -> str:
@@ -543,22 +670,135 @@ def render_prediction(t: dict) -> str:
 </section>"""
 
 
+MOOD_COLORS = {
+    "calm":    "#5A6478",  # 平淡蓝灰
+    "concern": "#C8973C",  # 担忧暗黄
+    "outrage": "#A8252F",  # 愤怒红
+    "hope":    "#4A7C59",  # 希望深绿
+}
+
+MOOD_LABELS_CN = {
+    "calm":    "平淡",
+    "concern": "担忧",
+    "outrage": "愤怒",
+    "hope":    "转机",
+}
+
+
+def render_mood_track_svg(t: dict) -> str:
+    """情绪轨迹图:横向年份色块 + 关键事件标注"""
+    mt = t.get("mood_track", {})
+    if not mt:
+        return ""
+    items = sorted(mt.items(), key=lambda kv: int(kv[0]))
+    years = [int(y) for y, _ in items]
+    if not years:
+        return ""
+
+    min_y, max_y = min(years), max(years)
+    span = max_y - min_y if max_y > min_y else 1
+
+    # SVG 尺寸
+    W = 720
+    H = 240
+    PAD_L = 24
+    PAD_R = 24
+    PAD_T = 40
+    PAD_B = 80
+    plot_w = W - PAD_L - PAD_R
+    plot_h = H - PAD_T - PAD_B
+
+    def x_at(year):
+        return PAD_L + (year - min_y) / span * plot_w
+
+    # 年度块宽度(基于年份间距)
+    # 单年宽度 = plot_w / (span)
+    cell_w = plot_w / max(span, 1) if span else 32
+
+    blocks = []
+    labels = []
+    events = []
+
+    for y, payload in items:
+        year = int(y)
+        if isinstance(payload, list) and len(payload) >= 2:
+            mood, intensity = payload[0], float(payload[1])
+            evt = payload[2] if len(payload) > 2 else ""
+        else:
+            mood, intensity, evt = "calm", 0.3, ""
+
+        color = MOOD_COLORS.get(mood, "#5A6478")
+        height = 15 + intensity * (plot_h - 20)  # 强度 → 高度
+        x = x_at(year) - cell_w / 2 + 2
+        w = cell_w - 4
+        y_pos = PAD_T + plot_h - height
+
+        blocks.append(
+            f'<rect x="{x:.1f}" y="{y_pos:.1f}" width="{w:.1f}" height="{height:.1f}" fill="{color}" opacity="{0.5 + intensity * 0.45:.2f}" rx="2"></rect>'
+        )
+
+        # 年份标签
+        if year % 2 == 0 or year in (min_y, max_y) or intensity >= 0.8:
+            labels.append(
+                f'<text x="{x_at(year):.1f}" y="{H - PAD_B + 18}" text-anchor="middle" class="mood-year">{year}</text>'
+            )
+
+        # 强度峰值显示事件文字
+        if evt and intensity >= 0.6:
+            events.append(
+                f'<text x="{x_at(year):.1f}" y="{H - PAD_B + 38}" text-anchor="middle" class="mood-event" fill="{color}">{esc(evt)}</text>'
+            )
+
+    legend = "".join(
+        f'<g transform="translate({i * 88},0)">'
+        f'<rect x="0" y="0" width="14" height="14" fill="{MOOD_COLORS[m]}" rx="2"></rect>'
+        f'<text x="20" y="11" class="mood-legend">{MOOD_LABELS_CN[m]}</text>'
+        f'</g>'
+        for i, m in enumerate(["calm", "concern", "outrage", "hope"])
+    )
+
+    return f"""<section class="mood-chart-section">
+  <header class="mood-header">
+    <span class="mood-tag">EMOTION TIMELINE · 情绪轨迹</span>
+    <span class="mood-meta">{len(items)} 年数据 · 色块高度 = 讨论强度</span>
+  </header>
+  <svg viewBox="0 0 {W} {H}" class="mood-svg" preserveAspectRatio="xMidYMid meet">
+    <line x1="{PAD_L}" y1="{PAD_T + plot_h:.1f}" x2="{W - PAD_R}" y2="{PAD_T + plot_h:.1f}" stroke="rgba(8,16,31,0.15)"></line>
+    {''.join(blocks)}
+    {''.join(labels)}
+    {''.join(events)}
+  </svg>
+  <div class="mood-legend-row">
+    <svg viewBox="0 0 360 16" class="mood-legend-svg">{legend}</svg>
+  </div>
+</section>"""
+
+
 def render_detail_view(t: dict) -> str:
-    years = sorted([int(y) for y in t.get("year_summaries", {}).keys()])
-    cards = [render_year_card(t, y) for y in years]
+    summary_years = set(int(y) for y in t.get("year_summaries", {}).keys())
+    # 只展示有 LLM summary 的年份 — 体现"时间跨度"靠 mood_track 可视化
+    cards = [render_year_card(t, y) for y in sorted(summary_years)]
+    cards = [c for c in cards if c]
+
     pred = render_prediction(t) if t.get("prediction") else ""
+    civic = render_civic_impact(t)
+    mood_chart = render_mood_track_svg(t)
+
+    mt_years = sorted([int(y) for y in t.get("mood_track", {}).keys()]) or sorted(summary_years)
     return f"""<div id="detail-{esc(t['id'])}" class="detail-view">
   <button class="back-btn" onclick="location.hash=''">← 返回本馆首页</button>
   <section class="detail-hero">
     <div class="container">
       <div class="detail-stamp">ARCHIVE-{(hash(t['id']) % 1000):03d} · {esc(t.get('category','—'))}</div>
       <h1 class="detail-title">{esc(t['title'])}</h1>
-      <div class="detail-cat">{len(t.get('raw_answers', []))} 条档案 · {len(years)} 个年份切片 · {min(years) if years else '?'} → {max(years) if years else '?'}</div>
+      <div class="detail-cat">{len(t.get('raw_answers', []))} 条档案 · {len(summary_years)} 个深度切片 · 跨度 {min(mt_years) if mt_years else '?'} → {max(mt_years) if mt_years else '?'}</div>
     </div>
   </section>
   <section class="timeline">
     <div class="container">
+      {mood_chart}
       {''.join(cards)}
+      {civic}
       {pred}
     </div>
   </section>
@@ -584,8 +824,16 @@ def main():
     else:
         year_span = 0
 
-    # 渲染
-    cards = "\n".join(render_topic_card(t) for t in topics)
+    # TOP 3 推荐(基于固定 id 列表)
+    FEATURED_IDS = ["yang-yongxin", "996-icu", "ofo-deposit"]
+    featured = [t for t in topics if t["id"] in FEATURED_IDS]
+    # 保持 FEATURED_IDS 的顺序
+    featured.sort(key=lambda t: FEATURED_IDS.index(t["id"]))
+    other = [t for t in topics if t["id"] not in FEATURED_IDS]
+
+    featured_cards = "\n".join(render_topic_card(t, featured=True) for t in featured)
+    other_cards = "\n".join(render_topic_card(t, featured=False) for t in other)
+
     details = "\n".join(render_detail_view(t) for t in topics)
 
     # 给前端 JS 用的精简数据(只要 prediction 的 3 段文字)
@@ -600,7 +848,9 @@ def main():
     html = html.replace("__TOPIC_COUNT__", str(topic_count))
     html = html.replace("__QUOTE_COUNT__", str(quote_count))
     html = html.replace("__YEAR_SPAN__", str(year_span))
-    html = html.replace("__TOPIC_CARDS__", cards)
+    html = html.replace("__FEATURED_CARDS__", featured_cards)
+    html = html.replace("__OTHER_CARDS__", other_cards)
+    html = html.replace("__OTHER_COUNT__", str(len(other)))
     html = html.replace("__DETAIL_VIEWS__", details)
     html = html.replace("__DATA_JSON__", json.dumps(data_for_js, ensure_ascii=False))
 
