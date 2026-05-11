@@ -173,7 +173,8 @@ def auth_zhihu():
 
 @app.get("/api/auth/callback")
 def auth_callback():
-    code = request.args.get("code")
+    # 知乎用非标准字段名 `authorization_code`(不是标准 OAuth 2.0 的 `code`)
+    code = request.args.get("code") or request.args.get("authorization_code")
     if not code:
         # 知乎可能传了 error / error_description
         err = request.args.get("error") or "no_code"
@@ -202,23 +203,47 @@ def auth_callback():
     if not OAUTH_APP_ID or not OAUTH_APP_KEY:
         return "OAuth not configured", 503
 
+    # 知乎 token endpoint 也用非标准字段:authorization_code(而非 code)
+    data_payload = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "authorization_code": code,  # 知乎可能用这个
+        "app_id": OAUTH_APP_ID,
+        "app_key": OAUTH_APP_KEY,
+        "app_secret": OAUTH_APP_KEY,  # 兼容标准命名
+        "client_id": OAUTH_APP_ID,
+        "client_secret": OAUTH_APP_KEY,
+        "redirect_uri": OAUTH_REDIRECT_URI,
+    }
     try:
         r = httpx.post(
             f"{OAUTH_BASE}/token",
-            data={
-                "grant_type": "authorization_code",
-                "code": code,
-                "app_id": OAUTH_APP_ID,
-                "app_key": OAUTH_APP_KEY,
-                "redirect_uri": OAUTH_REDIRECT_URI,
-            },
+            data=data_payload,
             timeout=30,
         )
-        r.raise_for_status()
-        data = r.json()
+        try:
+            data = r.json()
+        except Exception:
+            return (
+                f"<h1>Token endpoint 返回非 JSON</h1><p>HTTP {r.status_code}</p><pre>{r.text[:1000]}</pre>",
+                500,
+                {"Content-Type": "text/html; charset=utf-8"},
+            )
         access_token = data.get("access_token")
         if not access_token:
-            return jsonify({"error": "no token", "raw": data}), 500
+            # 显示完整调试信息(部署后可以拿掉)
+            return (
+                f"""<!doctype html><meta charset=utf-8>
+<style>body{{font-family:system-ui;padding:40px;max-width:800px;margin:auto;background:#08101F;color:#EBE0C4}}h1{{color:#A8252F}}pre{{background:rgba(255,255,255,0.05);padding:16px;border-radius:4px;overflow:auto;font-size:12px}}</style>
+<h1>Token 交换失败</h1>
+<p>HTTP {r.status_code}</p>
+<p>code (前 8 字符): {code[:8]}…</p>
+<p>token endpoint 返回:</p>
+<pre>{json.dumps(data, ensure_ascii=False, indent=2)}</pre>
+<p><a href="/api/auth/zhihu" style="color:#F1B644">↩ 再试一次</a></p>""",
+                500,
+                {"Content-Type": "text/html; charset=utf-8"},
+            )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
