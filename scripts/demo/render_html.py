@@ -266,9 +266,9 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 <section class="archive-section">
   <div class="container">
     <header class="section-header">
-      <div class="section-tag">CURATOR'S TOP 3 · 策展人首推</div>
-      <h2 class="section-title">本馆三大代表档案</h2>
-      <p class="section-desc">每一份都体现了知乎社区的「持续讨论 → 立法 / 政策 / 制度回应」的真实路径。点击任何一份,翻开它的情绪轨迹。</p>
+      <div class="section-tag">CURATOR'S TOP 4 · 策展人首推</div>
+      <h2 class="section-title">本馆四大代表档案</h2>
+      <p class="section-desc">三份关于「持续讨论 → 立法 / 政策 / 制度回应」的真实路径,加一份关于 AI 时代「焦虑 → 协作」的高速演变。点击任何一份,翻开它的情绪轨迹。</p>
     </header>
     <div class="featured-grid">
 __FEATURED_CARDS__
@@ -824,8 +824,8 @@ def main():
     else:
         year_span = 0
 
-    # TOP 3 推荐(基于固定 id 列表)
-    FEATURED_IDS = ["yang-yongxin", "996-icu", "ofo-deposit"]
+    # TOP 4 推荐(基于固定 id 列表)
+    FEATURED_IDS = ["chatgpt-after", "yang-yongxin", "996-icu", "ofo-deposit"]
     featured = [t for t in topics if t["id"] in FEATURED_IDS]
     # 保持 FEATURED_IDS 的顺序
     featured.sort(key=lambda t: FEATURED_IDS.index(t["id"]))
