@@ -276,6 +276,30 @@ def me():
     })
 
 
+# ───────── 知乎热榜直达 ─────────
+
+@app.get("/api/hotlist")
+def hotlist():
+    """拉知乎当前热榜前 N 条,前端点击即进入时光机搜索"""
+    from _lib.zhihu_api import hot_list as fetch_hot
+    try:
+        r = fetch_hot(limit=10)
+        items = r.get("Data", {}).get("Items", [])
+        return jsonify({
+            "items": [
+                {
+                    "title":   it.get("Title", "").strip(),
+                    "url":     it.get("Url", ""),
+                    "summary": (it.get("Summary") or "")[:120],
+                    "thumb":   it.get("ThumbnailUrl", ""),
+                }
+                for it in items if it.get("Title")
+            ],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "items": []}), 500
+
+
 # ───────── 「我的视角」OAuth 接口 ─────────
 
 def _oauth_get(path: str, token: str, params: dict | None = None) -> dict | None:

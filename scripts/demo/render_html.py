@@ -121,6 +121,115 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .hero-hint { margin-top: 64px; font-size: 12px; color: var(--mute); animation: float 2s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
+/* 今日热榜 · 直达时光机 */
+.hotlist-section {
+  background: linear-gradient(180deg, var(--ink) 0%, #0F1A2E 50%, var(--ink) 100%);
+  color: var(--paper);
+  padding: 64px 32px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hotlist-section::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(74,124,89,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(23,81,153,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+.hotlist-section .container { max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
+.hotlist-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; gap: 24px; flex-wrap: wrap; }
+.hotlist-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--highlight);
+  margin-bottom: 8px;
+}
+.hotlist-tag::before { content: "● "; color: #E63946; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.hotlist-title { font-family: 'Noto Serif SC', serif; font-size: 32px; font-weight: 700; }
+.hotlist-desc { font-family: 'Noto Serif SC', serif; font-style: italic; color: rgba(235,224,196,0.6); margin-top: 8px; font-size: 14px; max-width: 600px; }
+.hotlist-refresh-btn {
+  background: transparent;
+  border: 1px solid rgba(241,182,68,0.4);
+  color: var(--highlight);
+  padding: 8px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hotlist-refresh-btn:hover { background: var(--highlight); color: var(--ink); }
+.hotlist-loading {
+  text-align: center;
+  padding: 60px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--mute);
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+@keyframes pulse-text { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+.hotlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.hotlist-card {
+  background: rgba(235,224,196,0.04);
+  border: 1px solid rgba(235,224,196,0.12);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hotlist-card:hover {
+  border-color: var(--highlight);
+  background: rgba(241,182,68,0.06);
+  transform: translateY(-2px);
+}
+.hotlist-card .rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--highlight);
+  letter-spacing: 0.15em;
+}
+.hotlist-card h3 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--paper);
+  line-height: 1.4;
+}
+.hotlist-card .summary {
+  font-family: 'Noto Sans SC';
+  font-size: 12px;
+  color: rgba(235,224,196,0.55);
+  line-height: 1.6;
+  flex: 1;
+}
+.hotlist-card .cta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--highlight);
+  letter-spacing: 0.2em;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(235,224,196,0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hotlist-card .cta-zhihu {
+  color: rgba(235,224,196,0.4);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(235,224,196,0.3);
+}
+.hotlist-card .cta-zhihu:hover { color: var(--highlight); }
+
 /* 网格 */
 .archive-section { padding: 96px 32px; }
 .archive-section .container { max-width: 1280px; margin: 0 auto; }
@@ -402,8 +511,25 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
       EXAMPLES: ChatGPT 替代 · 共享单车 · 网瘾 · 区块链 · 二胎政策
     </div>
   </div>
-  <div class="hero-hint">↓ 或翻阅本馆精选</div>
+  <div class="hero-hint">↓ 看今日知乎热榜,或翻阅本馆精选</div>
 </section>
+
+<!-- 今日热榜直达 -->
+<section class="hotlist-section">
+  <div class="container">
+    <header class="hotlist-header">
+      <div>
+        <div class="hotlist-tag">LIVE FROM ZHIHU · 今日热榜</div>
+        <h2 class="hotlist-title">点任何一条,看它的「时光机」</h2>
+        <p class="hotlist-desc">来自知乎实时热榜的话题,点击立即用搜索 API 拉历史回答 + 启发式年份分桶,生成专属时光轴。</p>
+      </div>
+      <button id="hotlist-refresh" onclick="loadHotlist(true)" class="hotlist-refresh-btn">⟳ 刷新</button>
+    </header>
+    <div id="hotlist-loading" class="hotlist-loading">FETCHING 知乎热榜 ...</div>
+    <div id="hotlist-grid" class="hotlist-grid" style="display:none;"></div>
+  </div>
+</section>
+
 
 <section class="archive-section">
   <div class="container">
@@ -662,6 +788,48 @@ async function logout() {
   location.reload();
 }
 
+// ───────── 今日热榜 ─────────
+
+async function loadHotlist(forceRefresh = false) {
+  const grid = document.getElementById('hotlist-grid');
+  const loading = document.getElementById('hotlist-loading');
+  const btn = document.getElementById('hotlist-refresh');
+  loading.style.display = 'block';
+  grid.style.display = 'none';
+  if (btn) btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/hotlist' + (forceRefresh ? '?t=' + Date.now() : ''));
+    const data = await r.json();
+    const items = data.items || [];
+    if (!items.length) {
+      loading.textContent = '热榜暂时拉不到 · 试试搜索栏';
+      return;
+    }
+    grid.innerHTML = items.slice(0, 10).map((it, i) => {
+      const cleanTitle = (it.title || '').replace(/\s+/g, ' ').trim();
+      const searchQ = cleanTitle.replace(/[?？！!.。,，:：]/g, '').slice(0, 30);
+      return `
+        <div class="hotlist-card" onclick="doSearch('${escHtml(searchQ).replace(/'/g, "\\'")}')">
+          <div class="rank">HOT-${String(i+1).padStart(2,'0')}</div>
+          <h3>${escHtml(cleanTitle)}</h3>
+          ${it.summary ? `<div class="summary">${escHtml(it.summary)}…</div>` : ''}
+          <div class="cta">
+            <span>→ 看它的时光机</span>
+            <a class="cta-zhihu" href="${escHtml(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">知乎原帖 ↗</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+    loading.style.display = 'none';
+    grid.style.display = 'grid';
+  } catch (e) {
+    loading.textContent = '热榜加载失败:' + e.message;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 // ───────── 「我的视角」 ─────────
 
 function recordVisit(id, title) {
@@ -807,6 +975,7 @@ function route() {
 window.addEventListener('hashchange', route);
 window.addEventListener('load', () => {
   loadMe();
+  loadHotlist();
   route();
   // 登录成功提示
   if (new URLSearchParams(location.search).get('login') === 'ok') {

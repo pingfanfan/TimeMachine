@@ -35,7 +35,7 @@ from flask import Flask, request, jsonify, redirect, make_response
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from _lib.zhihu_api import zhihu_search, publish_pin, RING_ID  # noqa: E402
+from _lib.zhihu_api import zhihu_search, publish_pin, hot_list, RING_ID  # noqa: E402
 
 DATA_DIR = ROOT / "data" / "demo"
 DIST = ROOT / "dist"
@@ -155,6 +155,26 @@ def search():
         "by_year": {str(y): by_year[y] for y in sorted(by_year)},
         "summaries": {str(y): summaries[y] for y in summaries},
     })
+
+
+# ───────── 知乎热榜直达 ─────────
+
+@app.get("/api/hotlist")
+def hotlist():
+    try:
+        r = hot_list(limit=10)
+        items = r.get("Data", {}).get("Items", [])
+        return jsonify({"items": [
+            {
+                "title": it.get("Title", "").strip(),
+                "url": it.get("Url", ""),
+                "summary": (it.get("Summary") or "")[:120],
+                "thumb": it.get("ThumbnailUrl", ""),
+            }
+            for it in items if it.get("Title")
+        ]})
+    except Exception as e:
+        return jsonify({"error": str(e), "items": []}), 500
 
 
 # ───────── OAuth ─────────
