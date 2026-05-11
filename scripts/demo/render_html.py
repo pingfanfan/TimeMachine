@@ -924,7 +924,7 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 <section class="archive-section">
   <div class="container">
     <header class="section-header">
-      <div class="section-tag">CURATOR'S FEATURED · 平凡 + 耳朵 首推</div>
+      <div class="section-tag">CURATOR'S FEATURED · 平凡 + 耳多 首推</div>
       <h2 class="section-title">本馆代表档案</h2>
       <p class="section-desc">第一份从知乎自己的十五年开始 — 这是装下所有其他档案的容器。然后是 AI 时代的高速演变、社会立法链路、教育的代际焦虑。点击任何一份,翻开它的情绪轨迹。</p>
     </header>
@@ -1564,7 +1564,7 @@ def render_civic_impact(topic: dict) -> str:
   <div class="ci-pill">{esc(ci.get('tag', ''))}</div>
   <h2 class="ci-title">{esc(ci['title'])}</h2>
   <div class="ci-body">{esc_md(ci['body']).replace(chr(10), '<br><br>')}</div>
-  <div class="ci-sign">— 平凡 + 耳朵</div>
+  <div class="ci-sign">— 平凡 + 耳多</div>
 </section>"""
 
 
