@@ -73,6 +73,13 @@ HTML = r"""<!DOCTYPE html>
   --stamp: #A8252F;
   --mute: #5A6478;
   --highlight: #F1B644;
+  --zhihu: #175199;       /* 知乎蓝 */
+  --zhihu-light: #4A90D9;
+  --sepia: #6B4423;       /* 旧墨褐 */
+  --cyber: #4A7C59;       /* 赛博绿 */
+  --era-old-bg: #EBE0C4;
+  --era-mid-bg: #F4F0E4;
+  --era-new-bg: linear-gradient(135deg, rgba(23,81,153,0.07), rgba(74,124,89,0.04));
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.6; }
@@ -86,7 +93,26 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .nav-link:hover { color: var(--stamp); }
 
 /* Hero */
-.hero { min-height: 80vh; background: var(--ink); color: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 32px; }
+.hero { min-height: 80vh; background: var(--ink); color: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 32px; position: relative; overflow: hidden; }
+/* 科技感扫描线背景 */
+.hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,124,89,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,81,153,0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(23,81,153,0.18), transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(74,124,89,0.15), transparent 50%);
+  pointer-events: none;
+}
+.hero > * { position: relative; z-index: 1; }
 .hero-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.3em; color: var(--mute); margin-bottom: 32px; }
 .hero-title { font-family: 'Noto Serif SC', serif; font-size: clamp(48px, 9vw, 112px); font-weight: 900; line-height: 1.05; }
 .hero-subtitle { font-family: 'Noto Serif SC', serif; font-style: italic; font-size: clamp(18px, 2.5vw, 28px); color: rgba(235,224,196,0.6); margin-top: 16px; }
@@ -143,11 +169,11 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .timeline .container { max-width: 760px; margin: 0 auto; position: relative; padding-left: 56px; }
 .timeline .container::before { content: ""; position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: rgba(8,16,31,0.2); }
 
-.year-card { position: relative; padding: 48px 0; }
-.year-card::before { content: ""; position: absolute; left: -39px; top: 60px; width: 20px; height: 20px; border-radius: 50%; background: var(--stamp); }
-.year-label { font-family: 'Noto Serif SC', serif; font-size: 80px; font-weight: 700; color: rgba(8,16,31,0.85); line-height: 1; }
+.year-card { position: relative; padding: 48px 0 56px; margin: 12px 0; transition: all 0.3s ease; }
+.year-card::before { content: ""; position: absolute; left: -39px; top: 60px; width: 20px; height: 20px; border-radius: 50%; background: var(--stamp); transition: all 0.3s ease; }
+.year-label { font-family: 'Noto Serif SC', serif; font-size: 80px; font-weight: 700; color: rgba(8,16,31,0.85); line-height: 1; transition: all 0.3s ease; }
 .year-era { font-family: 'Noto Sans SC'; font-size: 15px; color: rgba(8,16,31,0.6); margin-top: 12px; }
-.year-quote { font-family: 'Noto Serif SC', serif; font-size: 26px; font-style: italic; line-height: 1.55; border-left: 4px solid var(--stamp); padding-left: 20px; margin-top: 32px; }
+.year-quote { font-family: 'Noto Serif SC', serif; font-size: 26px; font-style: italic; line-height: 1.55; border-left: 4px solid var(--stamp); padding-left: 20px; margin-top: 32px; transition: all 0.3s ease; }
 .year-quote cite { display: block; margin-top: 12px; font-style: normal; font-size: 13px; color: rgba(8,16,31,0.5); font-family: 'Noto Sans SC'; }
 .year-quote cite a { color: rgba(8,16,31,0.5); text-decoration: none; border-bottom: 1px dotted; }
 .year-quote cite a:hover { color: var(--stamp); }
@@ -157,6 +183,110 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .year-views .primary::before { content: "·"; font-weight: 900; margin-right: 8px; color: var(--stamp); }
 .year-views .secondary { color: rgba(8,16,31,0.55); }
 .year-views .secondary::before { content: "·"; margin-right: 8px; color: rgba(8,16,31,0.3); }
+
+/* ━━━━━ 三时代视觉演变 · 远到近 ━━━━━ */
+
+/* 远年代(2008-2014)· 胶片墨迹复古 */
+.year-card.era-old {
+  filter: sepia(0.12) saturate(0.9);
+  padding-left: 20px;
+}
+.year-card.era-old::before {
+  background: var(--sepia);
+  width: 16px; height: 16px;
+  box-shadow: 0 0 0 4px rgba(107,68,35,0.12);
+}
+.year-card.era-old .year-label {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  color: var(--sepia);
+  letter-spacing: -0.02em;
+  /* 旧报纸标题微微倾斜 */
+}
+.year-card.era-old .year-quote {
+  border-left-color: var(--sepia);
+  background: linear-gradient(90deg, rgba(107,68,35,0.04), transparent 30%);
+}
+.year-card.era-old .year-era {
+  font-style: italic;
+  color: rgba(107,68,35,0.7);
+}
+.year-card.era-old .year-views .primary::before { color: var(--sepia); }
+
+/* 中段(2015-2020)· 博客时代/知乎蓝 */
+.year-card.era-mid::before {
+  background: var(--zhihu);
+  box-shadow: 0 0 0 4px rgba(23,81,153,0.15);
+}
+.year-card.era-mid .year-label {
+  color: var(--zhihu);
+  letter-spacing: -0.01em;
+}
+.year-card.era-mid .year-quote {
+  border-left-color: var(--zhihu);
+  border-left-width: 3px;
+}
+.year-card.era-mid .year-era {
+  color: rgba(23,81,153,0.7);
+}
+.year-card.era-mid .year-views .primary::before { color: var(--zhihu); }
+
+/* 近年(2021-2026)· 赛博/科技渐变 */
+.year-card.era-new {
+  background: var(--era-new-bg);
+  border-radius: 4px;
+  padding: 48px 24px 56px;
+  margin-left: -24px;
+  position: relative;
+  overflow: hidden;
+}
+.year-card.era-new::after {
+  /* 细微数据网格背景 */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(23,81,153,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,81,153,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+.year-card.era-new > * { position: relative; z-index: 1; }
+.year-card.era-new::before {
+  background: linear-gradient(135deg, var(--zhihu), var(--cyber));
+  box-shadow: 0 0 16px rgba(74,124,89,0.4), 0 0 0 4px rgba(23,81,153,0.18);
+  animation: pulse-cyber 2.8s ease-in-out infinite;
+}
+@keyframes pulse-cyber {
+  0%, 100% { box-shadow: 0 0 12px rgba(74,124,89,0.35), 0 0 0 4px rgba(23,81,153,0.15); }
+  50%      { box-shadow: 0 0 24px rgba(74,124,89,0.6),  0 0 0 4px rgba(23,81,153,0.25); }
+}
+.year-card.era-new .year-label {
+  background: linear-gradient(135deg, var(--zhihu), var(--cyber) 70%, var(--highlight));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+}
+.year-card.era-new .year-quote {
+  border-left: 3px solid;
+  border-image: linear-gradient(180deg, var(--zhihu), var(--cyber)) 1;
+  padding-left: 22px;
+}
+.year-card.era-new .year-era {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--zhihu);
+  text-transform: lowercase;
+}
+.year-card.era-new .year-views .primary::before {
+  content: "▸";
+  color: var(--cyber);
+  font-size: 14px;
+}
 
 /* 档案条目 */
 .year-archive-toggle { margin-top: 28px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: var(--mute); cursor: pointer; border-bottom: 1px dotted rgba(8,16,31,0.2); padding-bottom: 4px; display: inline-block; }
@@ -190,13 +320,24 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .year-anchor-only { margin-top: 4px; font-family: 'Noto Sans SC'; font-size: 14px; color: rgba(8,16,31,0.55); }
 .year-anchor-line { margin-top: 12px; padding: 8px 14px; background: rgba(168,37,47,0.08); border-left: 2px solid var(--stamp); font-family: 'Noto Sans SC'; font-size: 13px; color: rgba(8,16,31,0.7); }
 
-/* Civic Impact */
-.civic-impact { background: var(--paper); border: 1px solid var(--stamp); padding: 56px 40px; margin: 64px 0 32px; position: relative; }
-.civic-impact .ci-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--stamp); }
-.civic-impact .ci-pill { display: inline-block; margin-top: 12px; padding: 4px 12px; background: var(--stamp); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; }
-.civic-impact .ci-title { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 700; margin-top: 20px; line-height: 1.35; }
+/* Civic Impact · 知乎蓝主调 */
+.civic-impact { background: linear-gradient(135deg, rgba(235,224,196,0.6), rgba(255,255,255,0.4)); border: 1px solid var(--zhihu); border-left: 4px solid var(--zhihu); padding: 56px 40px; margin: 64px 0 32px; position: relative; overflow: hidden; }
+.civic-impact::after {
+  content: "";
+  position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(23,81,153,0.08), transparent 70%);
+  pointer-events: none;
+}
+.civic-impact > * { position: relative; z-index: 1; }
+.civic-impact .ci-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--zhihu); }
+.civic-impact .ci-pill { display: inline-block; margin-top: 12px; padding: 4px 12px; background: var(--zhihu); color: white; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; }
+.civic-impact .ci-title { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 700; margin-top: 20px; line-height: 1.35; color: var(--ink); }
 .civic-impact .ci-body { font-family: 'Noto Serif SC', serif; font-size: 16px; line-height: 1.85; color: rgba(8,16,31,0.85); margin-top: 24px; }
 .civic-impact .ci-sign { margin-top: 28px; font-family: 'Noto Sans SC'; font-size: 13px; color: var(--mute); text-align: right; }
+
+/* 时间轴左侧装饰:渐变色彩条暗示从远到近 */
+.timeline .container::before { background: linear-gradient(180deg, var(--sepia) 0%, var(--sepia) 33%, var(--zhihu) 33%, var(--zhihu) 66%, var(--cyber) 66%, var(--cyber) 100%); opacity: 0.4; }
 
 /* 2029 预测 */
 .prediction { background: var(--ink); color: var(--paper); padding: 64px 40px; margin-top: 48px; border-radius: 4px; }
@@ -266,9 +407,9 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 <section class="archive-section">
   <div class="container">
     <header class="section-header">
-      <div class="section-tag">CURATOR'S TOP 4 · 策展人首推</div>
-      <h2 class="section-title">本馆四大代表档案</h2>
-      <p class="section-desc">三份关于「持续讨论 → 立法 / 政策 / 制度回应」的真实路径,加一份关于 AI 时代「焦虑 → 协作」的高速演变。点击任何一份,翻开它的情绪轨迹。</p>
+      <div class="section-tag">CURATOR'S TOP 7 · 策展人首推</div>
+      <h2 class="section-title">本馆七大代表档案</h2>
+      <p class="section-desc">关于「持续讨论 → 立法 / 政策 / 制度回应」的真实路径,加 AI 时代「焦虑 → 协作」的高速演变,以及知乎自己的十五年。点击任何一份,翻开它的情绪轨迹。</p>
     </header>
     <div class="featured-grid">
 __FEATURED_CARDS__
@@ -602,6 +743,14 @@ def render_year_card(topic: dict, year: int) -> str:
     archives_html = render_archives_in_year(topic, year)
     has_archives = bool(archives_html.strip())
 
+    # 三时代视觉:2008-2014 era-old, 2015-2020 era-mid, 2021-2026 era-new
+    if year <= 2014:
+        era_class = "era-old"
+    elif year <= 2020:
+        era_class = "era-mid"
+    else:
+        era_class = "era-new"
+
     # 情况 1: 有 LLM summary → 完整卡
     if has_summary:
         quote = s.get("golden_quote", "—")
@@ -619,7 +768,7 @@ def render_year_card(topic: dict, year: int) -> str:
         secondary_html = f'<p class="secondary">{esc(secondary)}</p>' if secondary else ""
         anchor_html = f'<div class="year-anchor-line">📌 {esc(event_anchor)}</div>' if event_anchor and event_anchor not in era else ""
         archive_toggle = f'<div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目(原始回答 + 真实链接)</div><div class="year-archives">{archives_html}</div>' if has_archives else ""
-        return f"""<article class="year-card">
+        return f"""<article class="year-card {era_class}">
   <div class="year-label">{year}</div>
   <div class="year-era">{esc(era)}</div>
   {anchor_html}
@@ -634,7 +783,7 @@ def render_year_card(topic: dict, year: int) -> str:
     # 情况 2: 没 summary,但有 event_anchor 或 archives → 简化卡
     if event_anchor or has_archives:
         archive_toggle = f'<div class="year-archive-toggle" onclick="toggleArchives(this)">↓ 展开档案条目</div><div class="year-archives">{archives_html}</div>' if has_archives else ""
-        return f"""<article class="year-card year-card-thin">
+        return f"""<article class="year-card year-card-thin {era_class}">
   <div class="year-label year-label-thin">{year}</div>
   <div class="year-anchor-only">{esc(event_anchor or '此年档案待补')}</div>
   {archive_toggle}
@@ -824,8 +973,16 @@ def main():
     else:
         year_span = 0
 
-    # TOP 4 推荐(基于固定 id 列表)
-    FEATURED_IDS = ["chatgpt-after", "yang-yongxin", "996-icu", "ofo-deposit"]
+    # TOP 7 推荐(针对评委关注点 + 时间纵深 + 立法案例)
+    FEATURED_IDS = [
+        "chatgpt-after",     # AI 三年 · 高速演变 (李笛/李大海/颜鑫)
+        "zhihu-itself",      # 知乎自指(周源/张荣乐)
+        "yang-yongxin",      # 18 年立法链路
+        "996-icu",           # 讨论 → 司法表态
+        "phone-scam",        # 反诈立法(史中/emmett)
+        "china-open-source", # 中国开源(颜鑫/李大海)
+        "ofo-deposit",       # 群体自救 → 监管
+    ]
     featured = [t for t in topics if t["id"] in FEATURED_IDS]
     # 保持 FEATURED_IDS 的顺序
     featured.sort(key=lambda t: FEATURED_IDS.index(t["id"]))
