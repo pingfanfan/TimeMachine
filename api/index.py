@@ -175,7 +175,30 @@ def auth_zhihu():
 def auth_callback():
     code = request.args.get("code")
     if not code:
-        return "missing code", 400
+        # 知乎可能传了 error / error_description
+        err = request.args.get("error") or "no_code"
+        err_desc = request.args.get("error_description") or "(empty)"
+        all_args = dict(request.args)
+        return (
+            f"""<!doctype html><meta charset=utf-8>
+<style>body{{font-family:system-ui;padding:40px;max-width:700px;margin:auto;background:#08101F;color:#EBE0C4}}h1{{color:#A8252F}}pre{{background:rgba(255,255,255,0.05);padding:16px;border-radius:4px;overflow:auto}}a{{color:#F1B644}}</style>
+<h1>OAuth 回调缺少 code</h1>
+<p>知乎跳回来时,URL 里没有 <code>?code=...</code>,只看到这些参数:</p>
+<pre>{json.dumps(all_args, ensure_ascii=False, indent=2)}</pre>
+<p><strong>error:</strong> {err}<br>
+<strong>error_description:</strong> {err_desc}</p>
+<hr>
+<p>常见原因:</p>
+<ul>
+  <li>OAuth 应用还在审核中(知乎黑客松项目可能要审核才放真实流量)</li>
+  <li>你在知乎授权页点了「拒绝」</li>
+  <li>知乎 session 异常,授权页报错跳回</li>
+  <li>redirect_uri 在知乎平台没填对</li>
+</ul>
+<p><a href="/api/auth/zhihu">↩ 再试一次</a> · <a href="/">回到首页</a></p>""",
+            400,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
     if not OAUTH_APP_ID or not OAUTH_APP_KEY:
         return "OAuth not configured", 503
 
