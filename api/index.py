@@ -276,6 +276,81 @@ def me():
     })
 
 
+# ───────── 「我的视角」OAuth 接口 ─────────
+
+def _oauth_get(path: str, token: str, params: dict | None = None) -> dict | None:
+    """统一调 OAuth API"""
+    try:
+        r = httpx.get(
+            f"{OAUTH_BASE}{path}",
+            headers={"Authorization": f"Bearer {token}"},
+            params=params or {},
+            timeout=15,
+        )
+        if r.status_code == 200:
+            return r.json()
+    except Exception as e:
+        print(f"  [oauth_get err] {path}: {e}")
+    return None
+
+
+@app.get("/api/me/profile")
+def me_profile():
+    """登录用户的完整画像:user_info + 关注 / 粉丝 count + 最近 moments"""
+    token = request.cookies.get("zh_oauth_token")
+    if not token:
+        return jsonify({"error": "not logged in"}), 401
+
+    # 并行拿 4 个接口
+    info = _oauth_get("/openapi/user_info", token) or {}
+    user = info.get("data", info)  # 兼容两种格式
+
+    followers = _oauth_get("/openapi/user_followers", token, {"page": 0, "per_page": 1}) or {}
+    followed = _oauth_get("/openapi/user_followed", token, {"page": 0, "per_page": 1}) or {}
+    moments = _oauth_get("/openapi/user_moments", token, {"page": 0, "per_page": 5}) or {}
+
+    return jsonify({
+        "user": {
+            "hash_id":     user.get("hash_id", ""),
+            "fullname":    user.get("fullname", ""),
+            "headline":    user.get("headline", ""),
+            "description": user.get("description", ""),
+            "avatar":      user.get("avatar_path", ""),
+            "url":         user.get("url", f"https://www.zhihu.com/people/{user.get('hash_id', '')}") if user else "",
+            "gender":      user.get("gender", ""),
+        },
+        "followers_total": (followers.get("data") or {}).get("total") or followers.get("total"),
+        "followed_total":  (followed.get("data") or {}).get("total") or followed.get("total"),
+        "moments": _normalize_moments(moments),
+        # 原始返回保留供调试
+        "_raw_info_keys": list(user.keys()) if user else [],
+    })
+
+
+def _normalize_moments(raw: dict) -> list:
+    """兼容多种 moments 返回结构"""
+    data = raw.get("data") if isinstance(raw, dict) else None
+    if isinstance(data, dict):
+        items = data.get("items") or data.get("moments") or data.get("list") or []
+    elif isinstance(data, list):
+        items = data
+    else:
+        items = raw.get("items", []) if isinstance(raw, dict) else []
+
+    out = []
+    for m in items[:5]:
+        if not isinstance(m, dict):
+            continue
+        out.append({
+            "title":   m.get("title") or m.get("question_title") or m.get("content_title") or "",
+            "excerpt": (m.get("excerpt") or m.get("content") or m.get("summary") or "")[:160],
+            "url":     m.get("url") or m.get("link") or "",
+            "author":  (m.get("author") or {}).get("name") if isinstance(m.get("author"), dict) else m.get("author_name", ""),
+            "time":    m.get("created_time") or m.get("publish_time") or m.get("updated_time") or "",
+        })
+    return out
+
+
 @app.post("/api/logout")
 def logout():
     resp = make_response(jsonify({"ok": True}))

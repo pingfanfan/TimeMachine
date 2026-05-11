@@ -372,8 +372,9 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
     <a class="nav-link" onclick="showHome()">本馆首页</a>
     <input id="nav-search" placeholder="输入老话题…" style="border:1px solid rgba(8,16,31,0.2); padding:6px 12px; font-family:'Noto Sans SC'; font-size:13px; outline:none; width:180px;" onkeydown="if(event.key==='Enter')doSearch(this.value)">
     <button class="nav-link" id="login-btn" onclick="loginZhihu()" style="border:1px solid rgba(8,16,31,0.2); background:transparent; padding:6px 12px; cursor:pointer; font-family:'Noto Sans SC';">登录知乎</button>
-    <span id="user-info" style="display:none; align-items:center; gap:6px;">
-      <img id="user-avatar" style="width:24px; height:24px; border-radius:50%;">
+    <span id="user-info" style="display:none; align-items:center; gap:8px;">
+      <button onclick="openMyPerspective()" style="background:var(--zhihu); color:white; border:none; padding:6px 14px; font-family:'Noto Sans SC'; font-size:13px; cursor:pointer; border-radius:2px;">👤 我的视角</button>
+      <img id="user-avatar" style="width:28px; height:28px; border-radius:50%; border:1px solid rgba(8,16,31,0.1);">
       <span id="user-name" style="font-size:13px;"></span>
       <button onclick="logout()" style="background:transparent; border:none; color:var(--stamp); cursor:pointer; font-size:11px;">退出</button>
     </span>
@@ -435,6 +436,62 @@ __OTHER_CARDS__
 
 </div>
 
+<!-- 「我的视角」Modal -->
+<div id="my-perspective" style="display:none; position:fixed; inset:0; background:rgba(8,16,31,0.85); z-index:100; backdrop-filter:blur(8px);" onclick="if(event.target===this) closeMyPerspective()">
+  <div style="max-width:760px; margin:5vh auto; max-height:90vh; overflow-y:auto; background:var(--paper); padding:48px; position:relative;">
+    <button onclick="closeMyPerspective()" style="position:absolute; top:16px; right:16px; background:transparent; border:1px solid rgba(8,16,31,0.2); padding:6px 12px; cursor:pointer; font-family:'Noto Sans SC'; font-size:12px;">✕ 关闭</button>
+
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.25em; color:var(--zhihu); margin-bottom:8px;">MY PERSPECTIVE · 我的视角</div>
+    <h2 style="font-family:'Noto Serif SC',serif; font-size:36px; margin-bottom:32px;">登录后,产品认识你</h2>
+
+    <div id="mp-loading" style="text-align:center; padding:48px 0; color:var(--mute); font-family:'JetBrains Mono',monospace; letter-spacing:0.15em;">FETCHING YOUR DATA · 正在拉取知乎 OAuth 数据</div>
+    <div id="mp-content" style="display:none;">
+
+      <!-- Profile -->
+      <section style="display:flex; gap:24px; align-items:flex-start; padding-bottom:28px; border-bottom:1px solid rgba(8,16,31,0.1);">
+        <img id="mp-avatar" style="width:88px; height:88px; border-radius:50%; border:2px solid var(--zhihu);">
+        <div style="flex:1;">
+          <h3 id="mp-name" style="font-family:'Noto Serif SC',serif; font-size:28px;"></h3>
+          <p id="mp-headline" style="font-family:'Noto Serif SC',serif; font-style:italic; color:rgba(8,16,31,0.7); margin-top:6px;"></p>
+          <a id="mp-zhihu-link" target="_blank" rel="noopener" style="display:inline-block; margin-top:10px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--zhihu); letter-spacing:0.1em; border-bottom:1px dotted var(--zhihu); text-decoration:none;"></a>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:24px;">
+        <div style="text-align:center; padding:18px; background:rgba(23,81,153,0.06); border-left:3px solid var(--zhihu);">
+          <div id="mp-followed" style="font-family:'Noto Serif SC',serif; font-size:32px; font-weight:700; color:var(--zhihu);">—</div>
+          <div style="font-family:'Noto Sans SC'; font-size:11px; color:var(--mute); letter-spacing:0.15em; margin-top:4px;">你关注的人</div>
+        </div>
+        <div style="text-align:center; padding:18px; background:rgba(74,124,89,0.06); border-left:3px solid var(--cyber);">
+          <div id="mp-followers" style="font-family:'Noto Serif SC',serif; font-size:32px; font-weight:700; color:var(--cyber);">—</div>
+          <div style="font-family:'Noto Sans SC'; font-size:11px; color:var(--mute); letter-spacing:0.15em; margin-top:4px;">你的粉丝</div>
+        </div>
+        <div style="text-align:center; padding:18px; background:rgba(241,182,68,0.10); border-left:3px solid var(--highlight);">
+          <div id="mp-visits" style="font-family:'Noto Serif SC',serif; font-size:32px; font-weight:700; color:#8B6914;">—</div>
+          <div style="font-family:'Noto Sans SC'; font-size:11px; color:var(--mute); letter-spacing:0.15em; margin-top:4px;">本馆访问足迹</div>
+        </div>
+      </section>
+
+      <!-- 关注流 -->
+      <section style="margin-top:36px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.25em; color:var(--mute);">FOLLOWING FEED · 你关注的人最近</div>
+        <h3 style="font-family:'Noto Serif SC',serif; font-size:22px; margin:8px 0 16px;">他们在讨论什么</h3>
+        <div id="mp-moments"></div>
+      </section>
+
+      <!-- 本馆访问记录 -->
+      <section style="margin-top:36px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.25em; color:var(--mute);">VISIT HISTORY · 本馆足迹</div>
+        <h3 style="font-family:'Noto Serif SC',serif; font-size:22px; margin:8px 0 16px;">你翻过的档案</h3>
+        <div id="mp-visit-list"></div>
+      </section>
+
+    </div>
+    <div id="mp-error" style="display:none; padding:32px; background:rgba(168,37,47,0.06); border-left:3px solid var(--stamp); font-family:'Noto Sans SC'; font-size:14px;"></div>
+  </div>
+</div>
+
 <!-- Detail Views -->
 __DETAIL_VIEWS__
 
@@ -480,6 +537,9 @@ function showDetail(id) {
   if (el) {
     el.classList.add('active');
     window.scrollTo(0, 0);
+    // 记录访问足迹
+    const title = el.querySelector('.detail-title')?.textContent || id;
+    recordVisit(id, title);
   }
 }
 
@@ -600,6 +660,99 @@ function loginZhihu() {
 async function logout() {
   await fetch('/api/logout', { method: 'POST' });
   location.reload();
+}
+
+// ───────── 「我的视角」 ─────────
+
+function recordVisit(id, title) {
+  if (!id) return;
+  try {
+    const k = 'tma-visits';
+    const arr = JSON.parse(localStorage.getItem(k) || '[]');
+    const filtered = arr.filter(v => v.id !== id);
+    filtered.unshift({ id, title, at: Date.now() });
+    localStorage.setItem(k, JSON.stringify(filtered.slice(0, 20)));
+  } catch (e) {}
+}
+
+function getVisits() {
+  try {
+    return JSON.parse(localStorage.getItem('tma-visits') || '[]');
+  } catch (e) { return []; }
+}
+
+async function openMyPerspective() {
+  const modal = document.getElementById('my-perspective');
+  modal.style.display = 'block';
+  document.getElementById('mp-loading').style.display = 'block';
+  document.getElementById('mp-content').style.display = 'none';
+  document.getElementById('mp-error').style.display = 'none';
+
+  try {
+    const r = await fetch('/api/me/profile');
+    if (r.status === 401) {
+      document.getElementById('mp-loading').style.display = 'none';
+      document.getElementById('mp-error').style.display = 'block';
+      document.getElementById('mp-error').textContent = '尚未登录,请先点「登录知乎」';
+      return;
+    }
+    const data = await r.json();
+    renderMyPerspective(data);
+  } catch (e) {
+    document.getElementById('mp-loading').style.display = 'none';
+    document.getElementById('mp-error').style.display = 'block';
+    document.getElementById('mp-error').textContent = '加载失败:' + e.message;
+  }
+}
+
+function closeMyPerspective() {
+  document.getElementById('my-perspective').style.display = 'none';
+}
+
+function renderMyPerspective(data) {
+  document.getElementById('mp-loading').style.display = 'none';
+  document.getElementById('mp-content').style.display = 'block';
+
+  const u = data.user || {};
+  document.getElementById('mp-avatar').src = u.avatar || '';
+  document.getElementById('mp-name').textContent = u.fullname || '(无昵称)';
+  document.getElementById('mp-headline').textContent = u.headline || u.description || '(无个人签名)';
+  const link = document.getElementById('mp-zhihu-link');
+  link.href = u.url || ('https://www.zhihu.com/people/' + u.hash_id);
+  link.textContent = '→ ' + (u.url || ('zhihu.com/people/' + u.hash_id));
+
+  document.getElementById('mp-followed').textContent = data.followed_total ?? '?';
+  document.getElementById('mp-followers').textContent = data.followers_total ?? '?';
+
+  const visits = getVisits();
+  document.getElementById('mp-visits').textContent = visits.length;
+
+  // 关注流
+  const m = document.getElementById('mp-moments');
+  if (!data.moments || !data.moments.length) {
+    m.innerHTML = '<div style="padding:16px; font-family:\'Noto Sans SC\'; color:var(--mute); font-size:13px; background:rgba(8,16,31,0.04);">暂无关注流数据(OAuth 接口可能限制或你关注的人最近没发内容)</div>';
+  } else {
+    m.innerHTML = data.moments.map(mt => `
+      <a href="${escHtml(mt.url)}" target="_blank" rel="noopener" style="display:block; padding:16px; border-bottom:1px dashed rgba(8,16,31,0.12); text-decoration:none; color:var(--ink);">
+        <div style="font-family:'Noto Serif SC',serif; font-size:16px; font-weight:500;">${escHtml(mt.title || mt.excerpt.slice(0, 50))}</div>
+        ${mt.excerpt ? `<div style="font-size:13px; color:rgba(8,16,31,0.65); margin-top:6px; line-height:1.6;">${escHtml(mt.excerpt)}…</div>` : ''}
+        ${mt.author ? `<div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute); margin-top:8px; letter-spacing:0.1em;">— ${escHtml(mt.author)}</div>` : ''}
+      </a>
+    `).join('');
+  }
+
+  // 本馆访问足迹
+  const v = document.getElementById('mp-visit-list');
+  if (!visits.length) {
+    v.innerHTML = '<div style="padding:16px; font-family:\'Noto Sans SC\'; color:var(--mute); font-size:13px;">还没翻过任何档案 — 关闭弹窗,去首页选一个档案吧</div>';
+  } else {
+    v.innerHTML = visits.slice(0, 8).map(vt => `
+      <a href="#${escHtml(vt.id)}" onclick="closeMyPerspective()" style="display:flex; justify-content:space-between; align-items:baseline; padding:12px 0; border-bottom:1px dashed rgba(8,16,31,0.1); text-decoration:none; color:var(--ink);">
+        <span style="font-family:'Noto Serif SC',serif; font-size:15px;">${escHtml(vt.title || vt.id)}</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute);">${new Date(vt.at).toLocaleString()}</span>
+      </a>
+    `).join('');
+  }
 }
 
 async function publishCurrentSearch() {
