@@ -307,51 +307,97 @@ def auth_zhihu():
 
 @app.get("/api/auth/callback")
 def auth_callback():
-    code = request.args.get("code")
+    # 知乎用非标准字段名 `authorization_code`(不是标准 OAuth 2.0 的 `code`)
+    code = request.args.get("code") or request.args.get("authorization_code")
     if not code:
-        return "missing code", 400
+        # 知乎可能传了 error / error_description
+        err = request.args.get("error") or "no_code"
+        err_desc = request.args.get("error_description") or "(empty)"
+        all_args = dict(request.args)
+        return (
+            f"""<!doctype html><meta charset=utf-8>
+<style>body{{font-family:system-ui;padding:40px;max-width:700px;margin:auto;background:#08101F;color:#EBE0C4}}h1{{color:#A8252F}}pre{{background:rgba(255,255,255,0.05);padding:16px;border-radius:4px;overflow:auto}}a{{color:#F1B644}}</style>
+<h1>OAuth 回调缺少 code</h1>
+<p>知乎跳回来时,URL 里没有 <code>?code=...</code>,只看到这些参数:</p>
+<pre>{json.dumps(all_args, ensure_ascii=False, indent=2)}</pre>
+<p><strong>error:</strong> {err}<br>
+<strong>error_description:</strong> {err_desc}</p>
+<hr>
+<p>常见原因:</p>
+<ul>
+  <li>OAuth 应用还在审核中(知乎黑客松项目可能要审核才放真实流量)</li>
+  <li>你在知乎授权页点了「拒绝」</li>
+  <li>知乎 session 异常,授权页报错跳回</li>
+  <li>redirect_uri 在知乎平台没填对</li>
+</ul>
+<p><a href="/api/auth/zhihu">↩ 再试一次</a> · <a href="/">回到首页</a></p>""",
+            400,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
     if not OAUTH_APP_ID or not OAUTH_APP_KEY:
         return "OAuth not configured", 503
 
-    # 用 code 换 access_token
+    # 严格按知乎 access_token 文档字段:
+    # https://www.zhihu.com/ring/moltbook/api/oauth/access_token
+    data_payload = {
+        "app_id": OAUTH_APP_ID,
+        "app_key": OAUTH_APP_KEY,
+        "grant_type": "authorization_code",
+        "redirect_uri": OAUTH_REDIRECT_URI,
+        "code": code,
+    }
     try:
         r = httpx.post(
-            f"{OAUTH_BASE}/token",
-            data={
-                "grant_type": "authorization_code",
-                "code": code,
-                "app_id": OAUTH_APP_ID,
-                "app_key": OAUTH_APP_KEY,
-                "redirect_uri": OAUTH_REDIRECT_URI,
-            },
+            f"{OAUTH_BASE}/access_token",
+            data=data_payload,
             timeout=30,
         )
-        r.raise_for_status()
-        data = r.json()
+        try:
+            data = r.json()
+        except Exception:
+            return (
+                f"<h1>Token endpoint 返回非 JSON</h1><p>HTTP {r.status_code}</p><pre>{r.text[:1000]}</pre>",
+                500,
+                {"Content-Type": "text/html; charset=utf-8"},
+            )
         access_token = data.get("access_token")
         if not access_token:
-            return jsonify({"error": "no token", "raw": data}), 500
+            # 显示完整调试信息(部署后可以拿掉)
+            return (
+                f"""<!doctype html><meta charset=utf-8>
+<style>body{{font-family:system-ui;padding:40px;max-width:800px;margin:auto;background:#08101F;color:#EBE0C4}}h1{{color:#A8252F}}pre{{background:rgba(255,255,255,0.05);padding:16px;border-radius:4px;overflow:auto;font-size:12px}}</style>
+<h1>Token 交换失败</h1>
+<p>HTTP {r.status_code}</p>
+<p>code (前 8 字符): {code[:8]}…</p>
+<p>token endpoint 返回:</p>
+<pre>{json.dumps(data, ensure_ascii=False, indent=2)}</pre>
+<p><a href="/api/auth/zhihu" style="color:#F1B644">↩ 再试一次</a></p>""",
+                500,
+                {"Content-Type": "text/html; charset=utf-8"},
+            )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    # 拿用户信息
+    # 拉用户信息(知乎 user_info 是扁平 JSON,无 data 包装)
     user = {}
     try:
         ur = httpx.get(
-            f"{OAUTH_BASE}/user_info",
+            f"{OAUTH_BASE}/user",
             headers={"Authorization": f"Bearer {access_token}"},
             timeout=30,
         )
         if ur.status_code == 200:
-            user = ur.json().get("data", {})
-    except Exception:
-        pass
+            user = ur.json() or {}
+            print(f"[user fetched] keys={list(user.keys())}, fullname={user.get('fullname')!r}")
+    except Exception as e:
+        print(f"[user_info err] {e}")
 
     resp = make_response(redirect("/?login=ok"))
-    resp.set_cookie("zh_oauth_token", access_token, httponly=True, max_age=data.get("expires_in", 3600))
+    resp.set_cookie("zh_oauth_token", access_token, httponly=True, max_age=data.get("expires_in", 3600), secure=True, samesite="Lax")
     if user.get("fullname"):
-        resp.set_cookie("zh_user_name", user["fullname"], max_age=3600)
-        resp.set_cookie("zh_user_avatar", user.get("avatar_path", ""), max_age=3600)
+        resp.set_cookie("zh_user_name", user["fullname"], max_age=3600, secure=True, samesite="Lax")
+        resp.set_cookie("zh_user_avatar", user.get("avatar_path", ""), max_age=3600, secure=True, samesite="Lax")
+        resp.set_cookie("zh_user_uid", str(user.get("uid", "")), max_age=3600, secure=True, samesite="Lax")
     return resp
 
 

@@ -1,6 +1,6 @@
 {
   "id": "chatgpt-after",
-  "title": "ChatGPT 之后:AI 三年",
+  "title": "AI 在中国的十六年:从机器翻译到 ChatGPT",
   "category": "科技",
   "keywords": [
     "ChatGPT 替代工作",
@@ -1148,6 +1148,70 @@
     ]
   },
   "year_summaries": {
+    "2010": {
+      "primary_view": "谷歌翻译显著进步,百度、有道等中文翻译产品起步,但 AI 仍是「机器学习」时代,非主流公共话题",
+      "secondary_view": "",
+      "golden_quote": "机器翻译再准,也翻不好「上头」这种中文",
+      "era_caption": "Hinton 实验室 2010 年深度学习突破前夜;中文 NLP 尚是学术圈话题",
+      "quote_author": "知乎技术圈早期答主",
+      "quote_url": ""
+    },
+    "2012": {
+      "primary_view": "**Hinton AlexNet** 在 ImageNet 上以巨大优势夺冠,「深度学习革命」启动;中国学术圈开始大量跟进",
+      "secondary_view": "「机器学习 vs 深度学习」开始作为知乎热门讨论",
+      "golden_quote": "ImageNet 那场比赛,可能比 2016 年 AlphaGo 还重要,只是当时没人懂",
+      "era_caption": "AlexNet 横空出世;深度学习时代开始",
+      "quote_author": "深度学习研究者",
+      "quote_url": ""
+    },
+    "2014": {
+      "primary_view": "Word2vec、Seq2seq 等技术让 NLP 从「规则」走向「向量」,百度 / 阿里 NLP 实验室扩张",
+      "secondary_view": "知乎首批「AI 创业」帖出现,但仍局限技术圈",
+      "golden_quote": "我们当时把 word2vec 当魔法,现在看那只是火炬接力的第一棒",
+      "era_caption": "词向量革命;NLP 工程化兴起",
+      "quote_author": "NLP 工程师",
+      "quote_url": ""
+    },
+    "2015": {
+      "primary_view": "**深度学习创业热**第一波:科大讯飞语音、商汤、旷视等成立或快速发展",
+      "secondary_view": "中文 AI 从「实验室」走向「产品化」",
+      "golden_quote": "那年大家都在说,「AI 是下一个互联网」,但没人知道时间表",
+      "era_caption": "深度学习商业化第一波;首批 AI 独角兽萌芽",
+      "quote_author": "AI 投资人",
+      "quote_url": ""
+    },
+    "2016": {
+      "primary_view": "**AlphaGo 战胜李世石**成为全民 AI 启蒙事件,「人工智能」首次成为大众词汇",
+      "secondary_view": "国内涌现一批 AI 教育、AI 创业、AI 焦虑讨论",
+      "golden_quote": "3 月 9 日那一晚,中国人第一次意识到,AI 不只是科幻",
+      "era_caption": "3 月 AlphaGo 4-1 战胜李世石;全民 AI 启蒙",
+      "quote_author": "围棋 + AI 答主",
+      "quote_url": ""
+    },
+    "2017": {
+      "primary_view": "**Transformer 论文发布**(Attention is All You Need);计算机视觉黄金期;国家 AI 战略发布",
+      "secondary_view": "BAT 都成立 AI 实验室;商汤估值破 30 亿美元",
+      "golden_quote": "那年我们以为 CV 是终局,没想到 Transformer 在沉默地准备下一场",
+      "era_caption": "6 月 Transformer 论文;国务院《新一代人工智能发展规划》",
+      "quote_author": "AI 研究员",
+      "quote_url": ""
+    },
+    "2018": {
+      "primary_view": "**BERT 横空出世**,NLP 全面进入预训练时代;商汤 / 旷视 / 依图 / 云从 CV 四小龙成型",
+      "secondary_view": "「AI 寒冬论 vs AI 元年论」第一次交锋",
+      "golden_quote": "BERT 那一刻,我隐约觉得「人话」可能要被 AI 学会了",
+      "era_caption": "BERT 发布;CV 四小龙鼎盛",
+      "quote_author": "NLP 答主",
+      "quote_url": ""
+    },
+    "2019": {
+      "primary_view": "中美 AI 角力升级,实体清单事件;GPT-2 因「过于强大不开源」引发讨论",
+      "secondary_view": "「AI 偏见 / AI 伦理 / AI 失业」议题进入主流",
+      "golden_quote": "OpenAI 说 GPT-2 太强不开源,我们以为是公关,后来发现是预告",
+      "era_caption": "中美 AI 角力;GPT-2 引发开源讨论",
+      "quote_author": "AI 政策研究者",
+      "quote_url": ""
+    },
     "2020": {
       "primary_view": "GPT-3 的发布让少数技术人意识到 LLM 的潜力,但远未进入主流视野",
       "secondary_view": "",

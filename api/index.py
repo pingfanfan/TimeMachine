@@ -244,23 +244,26 @@ def auth_callback():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+    # 拉用户信息(知乎 user_info 是扁平 JSON,无 data 包装)
     user = {}
     try:
         ur = httpx.get(
-            f"{OAUTH_BASE}/user_info",
+            f"{OAUTH_BASE}/user",
             headers={"Authorization": f"Bearer {access_token}"},
             timeout=30,
         )
         if ur.status_code == 200:
-            user = ur.json().get("data", {})
-    except Exception:
-        pass
+            user = ur.json() or {}
+            print(f"[user fetched] keys={list(user.keys())}, fullname={user.get('fullname')!r}")
+    except Exception as e:
+        print(f"[user_info err] {e}")
 
     resp = make_response(redirect("/?login=ok"))
     resp.set_cookie("zh_oauth_token", access_token, httponly=True, max_age=data.get("expires_in", 3600), secure=True, samesite="Lax")
     if user.get("fullname"):
         resp.set_cookie("zh_user_name", user["fullname"], max_age=3600, secure=True, samesite="Lax")
         resp.set_cookie("zh_user_avatar", user.get("avatar_path", ""), max_age=3600, secure=True, samesite="Lax")
+        resp.set_cookie("zh_user_uid", str(user.get("uid", "")), max_age=3600, secure=True, samesite="Lax")
     return resp
 
 
@@ -421,34 +424,35 @@ def _oauth_get(path: str, token: str, params: dict | None = None) -> dict | None
 
 @app.get("/api/me/profile")
 def me_profile():
-    """登录用户的完整画像:user_info + 关注 / 粉丝 count + 最近 moments"""
+    """登录用户的完整画像。
+    user_info 是扁平 JSON:{uid, fullname, gender, headline, description, avatar_path, phone_no, email}
+    """
     token = request.cookies.get("zh_oauth_token")
     if not token:
         return jsonify({"error": "not logged in"}), 401
 
-    # 并行拿 4 个接口
-    info = _oauth_get("/openapi/user_info", token) or {}
-    user = info.get("data", info)  # 兼容两种格式
+    user = _oauth_get("/user", token) or {}
 
     followers = _oauth_get("/openapi/user_followers", token, {"page": 0, "per_page": 1}) or {}
     followed = _oauth_get("/openapi/user_followed", token, {"page": 0, "per_page": 1}) or {}
     moments = _oauth_get("/openapi/user_moments", token, {"page": 0, "per_page": 5}) or {}
 
+    uid = user.get("uid")
     return jsonify({
         "user": {
-            "hash_id":     user.get("hash_id", ""),
+            "uid":         uid,
             "fullname":    user.get("fullname", ""),
             "headline":    user.get("headline", ""),
             "description": user.get("description", ""),
             "avatar":      user.get("avatar_path", ""),
-            "url":         user.get("url", f"https://www.zhihu.com/people/{user.get('hash_id', '')}") if user else "",
+            "url":         f"https://www.zhihu.com/people/{uid}" if uid else "https://www.zhihu.com",
             "gender":      user.get("gender", ""),
+            "email":       user.get("email", ""),
         },
         "followers_total": (followers.get("data") or {}).get("total") or followers.get("total"),
         "followed_total":  (followed.get("data") or {}).get("total") or followed.get("total"),
         "moments": _normalize_moments(moments),
-        # 原始返回保留供调试
-        "_raw_info_keys": list(user.keys()) if user else [],
+        "_raw_user_keys": list(user.keys()),
     })
 
 

@@ -57,6 +57,17 @@ def esc(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
+def esc_md(s):
+    """esc + 把 markdown **bold** 转 <strong>"""
+    if s is None:
+        return ""
+    safe = esc(s)
+    # **bold** → <strong>
+    import re as _re
+    safe = _re.sub(r"\*\*([^*\n]+?)\*\*", r"<strong>\1</strong>", safe)
+    return safe
+
+
 HTML = r"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -565,6 +576,97 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 /* 时间轴左侧装饰:渐变色彩条暗示从远到近 */
 .timeline .container::before { background: linear-gradient(180deg, var(--sepia) 0%, var(--sepia) 33%, var(--zhihu) 33%, var(--zhihu) 66%, var(--cyber) 66%, var(--cyber) 100%); opacity: 0.4; }
 
+/* 分享小卡 · 精简,可截图保存 */
+.share-card-section { margin-top: 56px; }
+.share-card-header { text-align: center; margin-bottom: 24px; }
+.share-card {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 36px 32px;
+  position: relative;
+  font-family: 'Noto Serif SC', serif;
+  background-image:
+    linear-gradient(rgba(74,124,89,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,81,153,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.sc-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 16px; border-bottom: 1px solid rgba(235,224,196,0.18);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; color: var(--mute);
+}
+.sc-brand { color: var(--highlight); }
+.sc-archive-no { color: var(--stamp); border: 1px solid var(--stamp); padding: 2px 8px; }
+.sc-title { font-size: 26px; font-weight: 700; margin-top: 20px; line-height: 1.25; }
+.sc-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  color: var(--mute); margin-top: 6px;
+}
+.sc-quotes { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+.sc-quote {
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 12px 14px; border-left: 3px solid;
+  background: rgba(235,224,196,0.04);
+}
+.sc-quote-old {
+  border-left-color: var(--sepia);
+  background: linear-gradient(90deg, rgba(107,68,35,0.12), transparent);
+}
+.sc-quote-mid {
+  border-left-color: var(--zhihu);
+  background: linear-gradient(90deg, rgba(23,81,153,0.12), transparent);
+}
+.sc-quote-new {
+  border-left-color: var(--cyber);
+  background: linear-gradient(90deg, rgba(74,124,89,0.14), transparent);
+}
+.sc-year {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 14px;
+  min-width: 44px; color: var(--highlight);
+}
+.sc-text {
+  font-size: 14px; font-style: italic;
+  color: var(--paper); line-height: 1.5;
+}
+.sc-divider {
+  text-align: center; color: var(--mute); font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.3em;
+}
+.sc-mood-strip {
+  display: flex; margin-top: 20px;
+  border-radius: 2px; overflow: hidden;
+  height: 20px;
+}
+.sc-prediction {
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: rgba(241,182,68,0.08);
+  border-left: 2px solid var(--highlight);
+  font-size: 12px; line-height: 1.6;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sc-pred-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  color: var(--highlight);
+}
+.sc-pred-text { font-style: italic; color: rgba(235,224,196,0.85); }
+.sc-footer {
+  margin-top: 22px; padding-top: 16px;
+  border-top: 1px dashed rgba(235,224,196,0.15);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; color: var(--mute);
+}
+.sc-tag { color: var(--stamp); }
+
 /* 2029 预测 */
 .prediction { background: var(--ink); color: var(--paper); padding: 64px 40px; margin-top: 48px; border-radius: 4px; }
 .prediction h2 { display: flex; align-items: baseline; justify-content: space-between; }
@@ -652,9 +754,9 @@ footer { padding: 64px 32px; text-align: center; font-family: 'JetBrains Mono', 
 <section class="archive-section">
   <div class="container">
     <header class="section-header">
-      <div class="section-tag">CURATOR'S TOP 7 · 策展人首推</div>
-      <h2 class="section-title">本馆七大代表档案</h2>
-      <p class="section-desc">关于「持续讨论 → 立法 / 政策 / 制度回应」的真实路径,加 AI 时代「焦虑 → 协作」的高速演变,以及知乎自己的十五年。点击任何一份,翻开它的情绪轨迹。</p>
+      <div class="section-tag">CURATOR'S FEATURED · 策展人首推</div>
+      <h2 class="section-title">本馆代表档案</h2>
+      <p class="section-desc">第一份从知乎自己的十五年开始 — 这是装下所有其他档案的容器。然后是 AI 时代的高速演变、社会立法链路、教育的代际焦虑。点击任何一份,翻开它的情绪轨迹。</p>
     </header>
     <div class="featured-grid">
 __FEATURED_CARDS__
@@ -1291,7 +1393,7 @@ def render_civic_impact(topic: dict) -> str:
   <div class="ci-tag">CIVIC IMPACT · 知乎的积极作用</div>
   <div class="ci-pill">{esc(ci.get('tag', ''))}</div>
   <h2 class="ci-title">{esc(ci['title'])}</h2>
-  <div class="ci-body">{esc(ci['body']).replace(chr(10), '<br><br>')}</div>
+  <div class="ci-body">{esc_md(ci['body']).replace(chr(10), '<br><br>')}</div>
   <div class="ci-sign">— 策展人 · 看山</div>
 </section>"""
 
@@ -1447,6 +1549,79 @@ def render_mood_track_svg(t: dict) -> str:
 </section>"""
 
 
+def render_share_card(t: dict) -> str:
+    """精简分享小卡:时间流逝 + 观点变化,适合截图保存"""
+    summary_years = sorted(int(y) for y in t.get("year_summaries", {}).keys())
+    if len(summary_years) < 2:
+        return ""
+
+    early_y = summary_years[0]
+    late_y = summary_years[-1]
+    early_q = t["year_summaries"].get(str(early_y), {}).get("golden_quote", "")
+    late_q = t["year_summaries"].get(str(late_y), {}).get("golden_quote", "")
+    mid_y = summary_years[len(summary_years) // 2]
+    mid_q = t["year_summaries"].get(str(mid_y), {}).get("golden_quote", "")
+
+    # 迷你情绪条
+    mt = t.get("mood_track", {})
+    items = sorted(mt.items(), key=lambda kv: int(kv[0]))
+    cells = []
+    for y, p in items:
+        if not isinstance(p, list) or len(p) < 2:
+            continue
+        mood = p[0]
+        intensity = float(p[1])
+        color = MOOD_COLORS.get(mood, "#5A6478")
+        cells.append(f'<div style="flex:1; height:20px; background:{color}; opacity:{0.5 + intensity * 0.45:.2f}; margin-right:1px;"></div>')
+
+    pred = t.get("prediction") or {}
+    pred_main = pred.get("mainstream", "")
+    span_years = late_y - early_y
+
+    return f"""<section class="share-card-section">
+  <header class="share-card-header">
+    <div class="ci-tag" style="color:var(--zhihu)">SHARE CARD · 精简分享卡</div>
+    <h2 style="font-family:'Noto Serif SC',serif; font-size:24px; margin-top:6px;">这份档案,一张图说完</h2>
+    <p style="font-family:'Noto Serif SC',serif; font-style:italic; color:rgba(8,16,31,0.6); margin-top:6px; font-size:13px;">截图保存,发朋友圈 / 知乎想法,让朋友也看见时间</p>
+  </header>
+
+  <div class="share-card" id="share-{esc(t['id'])}">
+    <div class="sc-header">
+      <span class="sc-brand">时光档案馆 · ZHIHU CHRONICLE</span>
+      <span class="sc-archive-no">{(hash(t['id']) % 1000):03d}</span>
+    </div>
+    <h3 class="sc-title">{esc(t['title'])}</h3>
+    <div class="sc-meta">{span_years} 年 · {len(summary_years)} 份切片 · {early_y} — {late_y}</div>
+
+    <div class="sc-quotes">
+      <div class="sc-quote sc-quote-old">
+        <span class="sc-year">{early_y}</span>
+        <span class="sc-text">「{esc(early_q[:36])}」</span>
+      </div>
+      <div class="sc-divider">↓</div>
+      <div class="sc-quote sc-quote-mid">
+        <span class="sc-year">{mid_y}</span>
+        <span class="sc-text">「{esc(mid_q[:36])}」</span>
+      </div>
+      <div class="sc-divider">↓</div>
+      <div class="sc-quote sc-quote-new">
+        <span class="sc-year">{late_y}</span>
+        <span class="sc-text">「{esc(late_q[:36])}」</span>
+      </div>
+    </div>
+
+    <div class="sc-mood-strip">{''.join(cells)}</div>
+
+    {f'<div class="sc-prediction"><span class="sc-pred-label">▸ 2029 AI 推演</span><span class="sc-pred-text">{esc(pred_main[:80])}…</span></div>' if pred_main else ''}
+
+    <div class="sc-footer">
+      <span class="sc-from">FROM · time-machine-six-sigma.vercel.app</span>
+      <span class="sc-tag">#知乎黑客松2026</span>
+    </div>
+  </div>
+</section>"""
+
+
 def render_detail_view(t: dict) -> str:
     summary_years = sorted(int(y) for y in t.get("year_summaries", {}).keys())
     # 只展示有 LLM summary 的年份 — 体现"时间跨度"靠 mood_track 可视化
@@ -1473,6 +1648,7 @@ def render_detail_view(t: dict) -> str:
     pred = render_prediction(t) if t.get("prediction") else ""
     civic = render_civic_impact(t)
     mood_chart = render_mood_track_svg(t)
+    share = render_share_card(t)
 
     mt_years = sorted([int(y) for y in t.get("mood_track", {}).keys()]) or sorted(summary_years)
     return f"""<div id="detail-{esc(t['id'])}" class="detail-view">
@@ -1490,6 +1666,7 @@ def render_detail_view(t: dict) -> str:
       {''.join(cards)}
       {civic}
       {pred}
+      {share}
     </div>
   </section>
 </div>"""
@@ -1514,12 +1691,14 @@ def main():
     else:
         year_span = 0
 
-    # TOP 7 推荐(针对评委关注点 + 时间纵深 + 立法案例)
+    # 精选推荐(知乎自指放第一,然后是 AI、立法链路、教育、社会、商业)
     FEATURED_IDS = [
+        "zhihu-itself",      # 知乎自指(周源/张荣乐) — 第一
         "chatgpt-after",     # AI 三年 · 高速演变 (李笛/李大海/颜鑫)
-        "zhihu-itself",      # 知乎自指(周源/张荣乐)
         "yang-yongxin",      # 18 年立法链路
         "996-icu",           # 讨论 → 司法表态
+        "kaoyan",            # 考研十五年(教育)
+        "study-abroad",      # 留学十五年(教育)
         "phone-scam",        # 反诈立法(史中/emmett)
         "china-open-source", # 中国开源(颜鑫/李大海)
         "ofo-deposit",       # 群体自救 → 监管
