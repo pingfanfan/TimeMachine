@@ -528,7 +528,7 @@ html, body { font-family: 'Noto Sans SC', system-ui, sans-serif; background: var
 .mood-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
 .mood-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--mute); }
 .mood-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--mute); }
-.mood-svg { width: 100%; height: auto; display: block; }
+.mood-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .mood-svg .mood-year { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: rgba(8,16,31,0.7); font-weight: 600; }
 .mood-svg .mood-event { font-family: 'Noto Sans SC'; font-size: 11px; opacity: 0.95; font-weight: 500; }
 .mood-svg .era-zone-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em; opacity: 0.55; }
@@ -1338,13 +1338,13 @@ def render_mood_track_svg(t: dict) -> str:
     min_y, max_y = min(years), max(years)
     span = max_y - min_y if max_y > min_y else 1
 
-    # SVG 尺寸 — 加大底部 padding 给倾斜事件文字
-    W = 760
+    # SVG 尺寸 — viewBox 加宽 + 加大 PAD_R 给右边 45° 事件文字留空间
+    W = 880
     H = 360
     PAD_L = 28
-    PAD_R = 28
+    PAD_R = 140  # 加大,让最右事件文字向右下延伸时仍在 viewBox 内
     PAD_T = 40
-    PAD_B = 200   # 大幅加大,留给 45° 事件文字
+    PAD_B = 200
     plot_w = W - PAD_L - PAD_R
     plot_h = H - PAD_T - PAD_B
 
