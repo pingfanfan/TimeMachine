@@ -1,0 +1,158 @@
+{
+  "topics": [
+    {
+      "id": "996-icu",
+      "file": "996-icu.json",
+      "title": "996.ICU 运动",
+      "category": "职场",
+      "year_range": [
+        2015,
+        2026
+      ],
+      "year_count": 8
+    },
+    {
+      "id": "bride-price",
+      "file": "bride-price.json",
+      "title": "高额彩礼",
+      "category": "婚恋",
+      "year_range": [
+        2008,
+        2026
+      ],
+      "year_count": 5
+    },
+    {
+      "id": "chatgpt-after",
+      "file": "chatgpt-after.json",
+      "title": "AI 在中国的十六年:从机器翻译到 ChatGPT",
+      "category": "科技",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 15
+    },
+    {
+      "id": "china-open-source",
+      "file": "china-open-source.json",
+      "title": "中国开源运动:从 LinuxFans 到大模型",
+      "category": "科技",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 10
+    },
+    {
+      "id": "kaoyan",
+      "file": "kaoyan.json",
+      "title": "考研:从 100 万到 474 万再到放弃",
+      "category": "教育",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 10
+    },
+    {
+      "id": "luo-yonghao",
+      "file": "luo-yonghao.json",
+      "title": "罗永浩与锤子科技",
+      "category": "商业",
+      "year_range": [
+        2013,
+        2026
+      ],
+      "year_count": 10
+    },
+    {
+      "id": "ofo-deposit",
+      "file": "ofo-deposit.json",
+      "title": "ofo 退押金潮",
+      "category": "商业",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 10
+    },
+    {
+      "id": "p2p-collapse",
+      "file": "p2p-collapse.json",
+      "title": "P2P 暴雷潮",
+      "category": "金融",
+      "year_range": [
+        2008,
+        2026
+      ],
+      "year_count": 12
+    },
+    {
+      "id": "phone-scam",
+      "file": "phone-scam.json",
+      "title": "网络诈骗的进化:从短信到 AI 换脸",
+      "category": "社会",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 9
+    },
+    {
+      "id": "school-district",
+      "file": "school-district.json",
+      "title": "学区房与双减",
+      "category": "教育",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 10
+    },
+    {
+      "id": "study-abroad",
+      "file": "study-abroad.json",
+      "title": "出国留学:从向往到分流",
+      "category": "教育",
+      "year_range": [
+        2010,
+        2026
+      ],
+      "year_count": 9
+    },
+    {
+      "id": "yang-yongxin",
+      "file": "yang-yongxin.json",
+      "title": "杨永信网戒中心",
+      "category": "社会",
+      "year_range": [
+        2008,
+        2026
+      ],
+      "year_count": 13
+    },
+    {
+      "id": "zhihu-itself",
+      "file": "zhihu-itself.json",
+      "title": "知乎社区的十五年",
+      "category": "社区",
+      "year_range": [
+        2011,
+        2026
+      ],
+      "year_count": 10
+    },
+    {
+      "id": "zte-ban",
+      "file": "zte-ban.json",
+      "title": "中兴禁令与科技冷战",
+      "category": "科技",
+      "year_range": [
+        2011,
+        2026
+      ],
+      "year_count": 10
+    }
+  ]
+}
