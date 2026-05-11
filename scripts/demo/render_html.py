@@ -858,6 +858,17 @@ def main():
     out.write_text(html, encoding="utf-8")
     print(f"✅ 渲染到 {out}  ({len(html)/1024:.1f} KB)")
 
+    # 同步到 public/(Vercel 部署目录)
+    public = ROOT / "public"
+    public.mkdir(exist_ok=True)
+    (public / "index.html").write_text(html, encoding="utf-8")
+    # 同步 api/data/(serverless function 内部数据)
+    api_data = ROOT / "api" / "data"
+    api_data.mkdir(parents=True, exist_ok=True)
+    for f in DATA_DIR.glob("*.json"):
+        (api_data / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+    print(f"✅ 同步到 public/ + api/data/(供 Vercel 部署)")
+
 
 if __name__ == "__main__":
     main()

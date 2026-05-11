@@ -1,0 +1,10 @@
+.venv/
+scripts/.venv/
+scripts/demo/__pycache__/
+data/demo/raw/
+docs/demos/
+dist/
+__pycache__/
+*.pyc
+.DS_Store
+.env.local
