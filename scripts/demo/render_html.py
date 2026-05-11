@@ -736,15 +736,15 @@ input[type="text"], textarea, input:not([type]), input#hero-search, input#nav-se
 /* 时间轴左侧装饰:渐变色彩条暗示从远到近 */
 .timeline .container::before { background: linear-gradient(180deg, var(--sepia) 0%, var(--sepia) 33%, var(--zhihu) 33%, var(--zhihu) 66%, var(--cyber) 66%, var(--cyber) 100%); opacity: 0.4; }
 
-/* 分享小卡 · 精简,可截图保存 */
+/* 档案速览全景卡 · 信息密度高,可截图 */
 .share-card-section { margin-top: 56px; }
 .share-card-header { text-align: center; margin-bottom: 24px; }
 .share-card {
-  max-width: 480px;
+  max-width: 580px;
   margin: 0 auto;
   background: var(--ink);
   color: var(--paper);
-  padding: 36px 32px;
+  padding: 32px 28px;
   position: relative;
   font-family: 'Noto Serif SC', serif;
   background-image:
@@ -756,76 +756,147 @@ input[type="text"], textarea, input:not([type]), input#hero-search, input#nav-se
 }
 .sc-header {
   display: flex; justify-content: space-between; align-items: baseline;
-  padding-bottom: 16px; border-bottom: 1px solid rgba(235,224,196,0.18);
+  padding-bottom: 14px; border-bottom: 1px solid rgba(235,224,196,0.18);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px; letter-spacing: 0.2em; color: var(--mute);
 }
 .sc-brand { color: var(--highlight); }
 .sc-archive-no { color: var(--stamp); border: 1px solid var(--stamp); padding: 2px 8px; }
-.sc-title { font-size: 26px; font-weight: 700; margin-top: 20px; line-height: 1.25; }
+.sc-title { font-size: 24px; font-weight: 700; margin-top: 16px; line-height: 1.25; }
 .sc-meta {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px; letter-spacing: 0.15em;
   color: var(--mute); margin-top: 6px;
 }
-.sc-quotes { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
-.sc-quote {
-  display: flex; align-items: baseline; gap: 14px;
-  padding: 12px 14px; border-left: 3px solid;
-  background: rgba(235,224,196,0.04);
-}
-.sc-quote-old {
-  border-left-color: var(--sepia);
-  background: linear-gradient(90deg, rgba(107,68,35,0.12), transparent);
-}
-.sc-quote-mid {
-  border-left-color: var(--zhihu);
-  background: linear-gradient(90deg, rgba(23,81,153,0.12), transparent);
-}
-.sc-quote-new {
-  border-left-color: var(--cyber);
-  background: linear-gradient(90deg, rgba(74,124,89,0.14), transparent);
-}
-.sc-year {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700; font-size: 14px;
-  min-width: 44px; color: var(--highlight);
-}
-.sc-text {
-  font-size: 14px; font-style: italic;
-  color: var(--paper); line-height: 1.5;
-}
-.sc-divider {
-  text-align: center; color: var(--mute); font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  letter-spacing: 0.3em;
-}
+
+/* 情绪条:不同高度的柱体显示讨论强度 */
 .sc-mood-strip {
-  display: flex; margin-top: 20px;
-  border-radius: 2px; overflow: hidden;
-  height: 20px;
+  display: flex; align-items: flex-end;
+  margin-top: 18px; height: 36px;
+  border-bottom: 1px solid rgba(235,224,196,0.15);
 }
-.sc-prediction {
+.sc-mood-legend {
+  display: flex; gap: 14px;
+  margin-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; color: var(--mute);
+}
+.sc-leg-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 1px;
+  margin-right: 4px; vertical-align: middle;
+}
+
+/* civic_impact 速摘 */
+.sc-ci-block {
   margin-top: 18px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--zhihu);
+  background: rgba(23,81,153,0.10);
+}
+.sc-ci-tag {
+  display: inline-block;
+  background: var(--zhihu); color: white;
+  padding: 2px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em;
+}
+.sc-ci-title {
+  font-size: 14px; font-weight: 500;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* 块状小标签 */
+.sc-block-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.2em;
+  color: var(--highlight);
+  margin-bottom: 8px;
+}
+
+/* 金句紧凑行(每年一行)*/
+.sc-quotes-block { margin-top: 20px; }
+.sc-quote-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(235,224,196,0.08);
+}
+.sc-quote-row:last-child { border-bottom: none; }
+.sc-y {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 12px;
+  min-width: 42px;
+  flex-shrink: 0;
+}
+.sc-q {
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(235,224,196,0.85);
+  line-height: 1.55;
+}
+.sc-era-old .sc-q { color: rgba(235,224,196,0.7); }
+.sc-era-new .sc-q { color: rgba(235,224,196,0.95); }
+
+/* 2029 三情境 */
+.sc-pred-block {
+  margin-top: 20px;
   padding: 12px 14px;
-  background: rgba(241,182,68,0.08);
+  background: rgba(241,182,68,0.06);
   border-left: 2px solid var(--highlight);
-  font-size: 12px; line-height: 1.6;
-  display: flex; flex-direction: column; gap: 4px;
+}
+.sc-pred-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  color: var(--highlight);
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(241,182,68,0.2);
+  margin-bottom: 8px;
+}
+.sc-pred-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
 }
 .sc-pred-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px; letter-spacing: 0.15em;
-  color: var(--highlight);
+  color: rgba(241,182,68,0.6);
+  background: rgba(241,182,68,0.1);
+  padding: 1px 6px;
+  min-width: 32px;
+  text-align: center;
+  flex-shrink: 0;
 }
-.sc-pred-text { font-style: italic; color: rgba(235,224,196,0.85); }
+.sc-pred-label.sc-pred-main {
+  background: var(--highlight); color: var(--ink); font-weight: 700;
+}
+.sc-pred-body {
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(235,224,196,0.85);
+  line-height: 1.55;
+}
+
 .sc-footer {
-  margin-top: 22px; padding-top: 16px;
+  margin-top: 18px; padding-top: 14px;
   border-top: 1px dashed rgba(235,224,196,0.15);
   display: flex; justify-content: space-between; align-items: center;
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px; letter-spacing: 0.15em; color: var(--mute);
 }
 .sc-tag { color: var(--stamp); }
+
+@media (max-width: 720px) {
+  .share-card { padding: 24px 18px; }
+  .sc-title { font-size: 20px; }
+  .sc-quote-row { gap: 8px; }
+  .sc-y { font-size: 11px; min-width: 36px; }
+  .sc-q { font-size: 12px; }
+  .sc-pred-row { flex-direction: column; gap: 4px; align-items: flex-start; }
+}
 
 /* 2029 预测 */
 .prediction { background: var(--ink); color: var(--paper); padding: 64px 40px; margin-top: 48px; border-radius: 4px; }
@@ -1720,19 +1791,39 @@ def render_mood_track_svg(t: dict) -> str:
 
 
 def render_share_card(t: dict) -> str:
-    """精简分享小卡:时间流逝 + 观点变化,适合截图保存"""
+    """档案速览全景:全部年份金句 + 完整情绪带 + civic + 2029 三情境"""
     summary_years = sorted(int(y) for y in t.get("year_summaries", {}).keys())
     if len(summary_years) < 2:
         return ""
 
     early_y = summary_years[0]
     late_y = summary_years[-1]
-    early_q = t["year_summaries"].get(str(early_y), {}).get("golden_quote", "")
-    late_q = t["year_summaries"].get(str(late_y), {}).get("golden_quote", "")
-    mid_y = summary_years[len(summary_years) // 2]
-    mid_q = t["year_summaries"].get(str(mid_y), {}).get("golden_quote", "")
+    span_years = late_y - early_y
 
-    # 迷你情绪条
+    # 全部金句行(按时代色)
+    quote_rows = []
+    for y in summary_years:
+        s = t["year_summaries"].get(str(y), {})
+        quote = s.get("golden_quote", "")
+        if not quote:
+            continue
+        if y <= 2014:
+            era_color = "var(--sepia)"
+            era_cls = "sc-era-old"
+        elif y <= 2020:
+            era_color = "var(--zhihu-light)"
+            era_cls = "sc-era-mid"
+        else:
+            era_color = "var(--cyber)"
+            era_cls = "sc-era-new"
+        quote_rows.append(
+            f'<div class="sc-quote-row {era_cls}">'
+            f'<span class="sc-y" style="color:{era_color}">{y}</span>'
+            f'<span class="sc-q">「{esc(quote[:52])}」</span>'
+            f'</div>'
+        )
+
+    # 完整情绪条
     mt = t.get("mood_track", {})
     items = sorted(mt.items(), key=lambda kv: int(kv[0]))
     cells = []
@@ -1742,17 +1833,38 @@ def render_share_card(t: dict) -> str:
         mood = p[0]
         intensity = float(p[1])
         color = MOOD_COLORS.get(mood, "#5A6478")
-        cells.append(f'<div style="flex:1; height:20px; background:{color}; opacity:{0.5 + intensity * 0.45:.2f}; margin-right:1px;"></div>')
+        h = 10 + intensity * 24
+        cells.append(f'<div style="flex:1; height:{h:.0f}px; background:{color}; opacity:{0.6 + intensity * 0.35:.2f}; margin-right:1px;" title="{y}"></div>')
 
+    # 2029 三情境
     pred = t.get("prediction") or {}
-    pred_main = pred.get("mainstream", "")
-    span_years = late_y - early_y
+    pred_html = ""
+    if pred.get("mainstream"):
+        pred_html = (
+            f'<div class="sc-pred-block">'
+            f'<div class="sc-pred-header">▸ 2029 三情境推演 · AI 基于档案外推</div>'
+            f'<div class="sc-pred-row"><span class="sc-pred-label">保守</span><span class="sc-pred-body">{esc(pred.get("conservative","")[:90])}</span></div>'
+            f'<div class="sc-pred-row"><span class="sc-pred-label sc-pred-main">主流</span><span class="sc-pred-body">{esc(pred.get("mainstream","")[:90])}</span></div>'
+            f'<div class="sc-pred-row"><span class="sc-pred-label">激进</span><span class="sc-pred-body">{esc(pred.get("radical","")[:90])}</span></div>'
+            f'</div>'
+        )
+
+    # civic_impact
+    ci = t.get("civic_impact") or {}
+    ci_html = ""
+    if ci.get("title"):
+        ci_html = (
+            f'<div class="sc-ci-block">'
+            f'<span class="sc-ci-tag">{esc(ci.get("tag","团队手记"))}</span>'
+            f'<div class="sc-ci-title">{esc(ci["title"])}</div>'
+            f'</div>'
+        )
 
     return f"""<section class="share-card-section">
   <header class="share-card-header">
-    <div class="ci-tag" style="color:var(--zhihu)">SHARE CARD · 精简分享卡</div>
-    <h2 style="font-family:'Noto Serif SC',serif; font-size:24px; margin-top:6px;">这份档案,一张图说完</h2>
-    <p style="font-family:'Noto Serif SC',serif; font-style:italic; color:rgba(8,16,31,0.6); margin-top:6px; font-size:13px;">截图保存,发朋友圈 / 知乎想法,让朋友也看见时间</p>
+    <div class="ci-tag" style="color:var(--zhihu)">SHARE CARD · 档案速览全景</div>
+    <h2 style="font-family:'Noto Serif SC',serif; font-size:24px; margin-top:6px;">这份档案,一张图看完</h2>
+    <p style="font-family:'Noto Serif SC',serif; font-style:italic; color:rgba(8,16,31,0.6); margin-top:6px; font-size:13px;">全部年份金句 + 情绪轨迹 + 三种 2029 推演,截图直接分享</p>
   </header>
 
   <div class="share-card" id="share-{esc(t['id'])}">
@@ -1761,31 +1873,27 @@ def render_share_card(t: dict) -> str:
       <span class="sc-archive-no">{(hash(t['id']) % 1000):03d}</span>
     </div>
     <h3 class="sc-title">{esc(t['title'])}</h3>
-    <div class="sc-meta">{span_years} 年 · {len(summary_years)} 份切片 · {early_y} — {late_y}</div>
-
-    <div class="sc-quotes">
-      <div class="sc-quote sc-quote-old">
-        <span class="sc-year">{early_y}</span>
-        <span class="sc-text">「{esc(early_q[:36])}」</span>
-      </div>
-      <div class="sc-divider">↓</div>
-      <div class="sc-quote sc-quote-mid">
-        <span class="sc-year">{mid_y}</span>
-        <span class="sc-text">「{esc(mid_q[:36])}」</span>
-      </div>
-      <div class="sc-divider">↓</div>
-      <div class="sc-quote sc-quote-new">
-        <span class="sc-year">{late_y}</span>
-        <span class="sc-text">「{esc(late_q[:36])}」</span>
-      </div>
-    </div>
+    <div class="sc-meta">{span_years} 年 · {len(summary_years)} 份切片 · {early_y} → {late_y} · 共 {len(t.get('raw_answers', []))} 条原档</div>
 
     <div class="sc-mood-strip">{''.join(cells)}</div>
+    <div class="sc-mood-legend">
+      <span><span class="sc-leg-dot" style="background:#5A6478"></span>平淡</span>
+      <span><span class="sc-leg-dot" style="background:#C8973C"></span>担忧</span>
+      <span><span class="sc-leg-dot" style="background:#A8252F"></span>愤怒</span>
+      <span><span class="sc-leg-dot" style="background:#4A7C59"></span>转机</span>
+    </div>
 
-    {f'<div class="sc-prediction"><span class="sc-pred-label">▸ 2029 AI 推演</span><span class="sc-pred-text">{esc(pred_main[:80])}…</span></div>' if pred_main else ''}
+    {ci_html}
+
+    <div class="sc-quotes-block">
+      <div class="sc-block-tag">▸ {len(quote_rows)} 个年份切片 · 完整金句</div>
+      {''.join(quote_rows)}
+    </div>
+
+    {pred_html}
 
     <div class="sc-footer">
-      <span class="sc-from">FROM · time-machine-six-sigma.vercel.app</span>
+      <span class="sc-from">time-machine-six-sigma.vercel.app · 平凡 + 耳多</span>
       <span class="sc-tag">#知乎黑客松2026</span>
     </div>
   </div>
