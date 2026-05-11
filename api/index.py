@@ -203,21 +203,18 @@ def auth_callback():
     if not OAUTH_APP_ID or not OAUTH_APP_KEY:
         return "OAuth not configured", 503
 
-    # 知乎 token endpoint 也用非标准字段:authorization_code(而非 code)
+    # 严格按知乎 access_token 文档字段:
+    # https://www.zhihu.com/ring/moltbook/api/oauth/access_token
     data_payload = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "authorization_code": code,  # 知乎可能用这个
         "app_id": OAUTH_APP_ID,
         "app_key": OAUTH_APP_KEY,
-        "app_secret": OAUTH_APP_KEY,  # 兼容标准命名
-        "client_id": OAUTH_APP_ID,
-        "client_secret": OAUTH_APP_KEY,
+        "grant_type": "authorization_code",
         "redirect_uri": OAUTH_REDIRECT_URI,
+        "code": code,
     }
     try:
         r = httpx.post(
-            f"{OAUTH_BASE}/token",
+            f"{OAUTH_BASE}/access_token",
             data=data_payload,
             timeout=30,
         )
