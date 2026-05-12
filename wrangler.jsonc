@@ -2,11 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "timemachine",
   "compatibility_date": "2026-05-12",
+  "main": "worker/index.js",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "public"
+    "directory": "public",
+    "binding": "ASSETS"
   },
   "compatibility_flags": [
     "nodejs_compat"
