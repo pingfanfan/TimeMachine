@@ -95,7 +95,7 @@ curl -I "$URL/"
 | 域名 | 部署 | 用途 |
 |---|---|---|
 | **EdgeOne** `*.edgeone.app` | 主域(国内可达) | 评委 / 国内分享 / 路演 |
-| **Vercel** `time-machine-six-sigma.vercel.app` | 备份(海外可达 + OAuth 完整) | 海外开发 / OAuth 测试 |
+| **Vercel** `www.tmark.top` | 备份(海外可达 + OAuth 完整) | 海外开发 / OAuth 测试 |
 
 ---
 
@@ -146,13 +146,13 @@ EdgeOne Edge Functions 是 **V8 isolate 运行时**(类似 Cloudflare Workers),�
 
 更新 share-wechat.md 的链接:
 ```
-之前:https://time-machine-six-sigma.vercel.app
+之前:https://www.tmark.top
 之后:https://你的-edgeone-url
 ```
 
 更新 share card 的 footer:
 ```
-之前:time-machine-six-sigma.vercel.app
+之前:www.tmark.top
 之后:你的-edgeone-url
 ```
 

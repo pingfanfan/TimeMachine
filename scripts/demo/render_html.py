@@ -1893,7 +1893,7 @@ def render_share_card(t: dict) -> str:
     {pred_html}
 
     <div class="sc-footer">
-      <span class="sc-from">time-machine-six-sigma.vercel.app · 平凡 + 耳多</span>
+      <span class="sc-from">www.tmark.top · 平凡 + 耳多</span>
       <span class="sc-tag">#知乎黑客松2026</span>
     </div>
   </div>

@@ -1,6 +1,6 @@
 # 分享文案 · 时光档案馆
 
-体验链接:**https://time-machine-six-sigma.vercel.app**
+体验链接:**https://www.tmark.top**
 
 ---
 
@@ -15,7 +15,7 @@
 
 更狠的:杨永信、996、ofo、彩礼、AI 三年、留学、开源…14 份完整档案,每份都跨 10-19 年。顶上还能输任意老话题实时搜索,生成专属时光机。
 
-链接:https://time-machine-six-sigma.vercel.app
+链接:https://www.tmark.top
 
 知乎黑客松 2026 参赛作品,5/14 截止提报。试完欢迎吐槽 🙏
 ```
@@ -27,7 +27,7 @@
 ```
 做了个时光机:输入「996」「ChatGPT」「考研」「彩礼」这种老话题,
 看它在知乎被讨论了十几年的所有金句、情绪变化、关键事件。
-点开杨永信看 18 年 → https://time-machine-six-sigma.vercel.app
+点开杨永信看 18 年 → https://www.tmark.top
 ```
 
 ---
@@ -50,7 +50,7 @@
 最爽的是顶部那个搜索框,输任意一个老话题,实时拉知乎搜索 API,
 帮你生成专属的时光机。试试输「学区房」「996」「老头乐」…
 
-链接:https://time-machine-six-sigma.vercel.app
+链接:https://www.tmark.top
 
 知乎黑客松 2026 参赛作品,5 月 16 日决赛路演。
 
@@ -67,7 +67,7 @@
 《时光档案馆》— 把知乎 14 个老话题的十几年讨论沉淀,
 做成可滚动的时光机 + AI 情绪轨迹图 + 2029 推演。
 
-体验:https://time-machine-six-sigma.vercel.app
+体验:https://www.tmark.top
 
 如果觉得有意思,顺手帮我:
 1. 体验一下,在「黑客松脑洞补给站」圈子那条想法点个赞
