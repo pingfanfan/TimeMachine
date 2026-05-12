@@ -50,6 +50,9 @@ export async function onRequest({ request, env }) {
     });
   }
 
+  const url = new URL(request.url);
+  const debug = url.searchParams.get("debug") === "1";
+
   try {
     const r = await fetch("https://developer.zhihu.com/api/v1/content/hot_list?Limit=30", {
       headers: {
@@ -58,32 +61,43 @@ export async function onRequest({ request, env }) {
         "Content-Type": "application/json",
       },
     });
+    const rawText = await r.text();
     if (!r.ok) {
-      return new Response(JSON.stringify({ error: `upstream ${r.status}`, items: [] }), {
+      return new Response(JSON.stringify({
+        error: `upstream ${r.status}`,
+        items: [],
+        _raw: debug ? rawText.slice(0, 800) : undefined,
+      }), {
         status: 502, headers: { "Content-Type": "application/json; charset=utf-8" }
       });
     }
-    const data = await r.json();
-    const items = (data?.Data?.Items) || [];
+    let data = {};
+    try { data = JSON.parse(rawText); } catch { /* keep empty */ }
+    // 兼容两种结构:{Data:{Items:[]}} (data platform) 或 {data:{items:[]}} (其他)
+    const items = data?.Data?.Items || data?.data?.items || data?.Items || data?.items || [];
 
     const out = [];
     for (const it of items) {
-      const title = (it.Title || "").trim();
+      const title = (it.Title || it.title || "").trim();
       if (!title) continue;
       const extracted = extractTimetravelQuery(title);
       if (!extracted) continue;
       const [matchedKeyword, query] = extracted;
       out.push({
         title,
-        url: it.Url || "",
-        summary: (it.Summary || "").slice(0, 120),
+        url: it.Url || it.url || "",
+        summary: (it.Summary || it.summary || "").slice(0, 120),
         matched_keyword: matchedKeyword,
         time_travel_query: query,
       });
       if (out.length >= 8) break;
     }
 
-    return new Response(JSON.stringify({ items: out, total_scanned: items.length }), {
+    return new Response(JSON.stringify({
+      items: out,
+      total_scanned: items.length,
+      _debug: debug ? { http: r.status, raw_keys: Object.keys(data), raw_preview: rawText.slice(0, 800) } : undefined,
+    }), {
       headers: { "Content-Type": "application/json; charset=utf-8" },
     });
   } catch (e) {

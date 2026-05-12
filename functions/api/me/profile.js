@@ -13,16 +13,20 @@ function parseCookies(header) {
   return out;
 }
 
-async function oauthGet(path, token, params) {
+async function oauthGet(path, token, params, debugStore) {
   try {
     const url = new URL(OAUTH_BASE + path);
     if (params) for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
     const r = await fetch(url, {
       headers: { "Authorization": `Bearer ${token}` },
     });
-    if (r.ok) return await r.json();
+    const text = await r.text();
+    if (debugStore) debugStore[path] = { status: r.status, preview: text.slice(0, 400) };
+    if (r.ok) {
+      try { return JSON.parse(text); } catch { return null; }
+    }
   } catch (e) {
-    console.log(`[oauth_get err] ${path}: ${e}`);
+    if (debugStore) debugStore[path] = { error: String(e) };
   }
   return null;
 }
@@ -63,10 +67,14 @@ export async function onRequest({ request }) {
     });
   }
 
-  const user = (await oauthGet("/user", token)) || {};
-  const followers = (await oauthGet("/openapi/user_followers", token, { page: 0, per_page: 1 })) || {};
-  const followed = (await oauthGet("/openapi/user_followed", token, { page: 0, per_page: 1 })) || {};
-  const moments = (await oauthGet("/openapi/user_moments", token, { page: 0, per_page: 5 })) || {};
+  const url = new URL(request.url);
+  const debug = url.searchParams.get("debug") === "1";
+  const dbg = debug ? {} : null;
+
+  const user = (await oauthGet("/user", token, null, dbg)) || {};
+  const followers = (await oauthGet("/openapi/user_followers", token, { page: 0, per_page: 1 }, dbg)) || {};
+  const followed = (await oauthGet("/openapi/user_followed", token, { page: 0, per_page: 1 }, dbg)) || {};
+  const moments = (await oauthGet("/openapi/user_moments", token, { page: 0, per_page: 5 }, dbg)) || {};
 
   const uid = user.uid;
   const body = {
@@ -84,6 +92,7 @@ export async function onRequest({ request }) {
     followed_total: (followed.data && followed.data.total) || followed.total,
     moments: normalizeMoments(moments),
     _raw_user_keys: Object.keys(user),
+    _debug: dbg,
   };
 
   return new Response(JSON.stringify(body), {
