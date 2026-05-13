@@ -72,10 +72,39 @@ export async function onRequest({ request }) {
   const dbg = debug ? {} : null;
 
   const user = (await oauthGet("/user", token, null, dbg)) || {};
-  // /openapi/* 都返回 404,改用同级路径(跟 /user 一致)
-  const followers = (await oauthGet("/user_followers", token, { page: 0, per_page: 1 }, dbg)) || {};
-  const followed = (await oauthGet("/user_followed", token, { page: 0, per_page: 1 }, dbg)) || {};
-  const moments = (await oauthGet("/user_moments", token, { page: 0, per_page: 5 }, dbg)) || {};
+  const uidForPath = user.uid;
+
+  // 多路径 probe — 知乎 OAuth followers/moments 路径不在公开文档里,逐个试
+  async function probeFirst(paths, params) {
+    for (const p of paths) {
+      const r = await oauthGet(p, token, params, dbg);
+      if (r) return r;
+    }
+    return {};
+  }
+
+  const followers = await probeFirst([
+    "/followers",
+    "/user/followers",
+    `/users/${uidForPath}/followers`,
+    "/me/followers",
+  ], { page: 0, per_page: 1 });
+  const followed = await probeFirst([
+    "/followed",
+    "/user/followed",
+    "/following",
+    "/user/following",
+    `/users/${uidForPath}/followed`,
+    "/me/followed",
+  ], { page: 0, per_page: 1 });
+  const moments = await probeFirst([
+    "/moments",
+    "/user/moments",
+    "/feeds",
+    "/user/feeds",
+    `/users/${uidForPath}/moments`,
+    "/me/moments",
+  ], { page: 0, per_page: 5 });
 
   const uid = user.uid;
   const body = {
