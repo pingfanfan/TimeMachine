@@ -7791,24 +7791,34 @@ function renderMyPerspective(data) {
   link.href = u.url || ('https://www.zhihu.com/people/' + u.hash_id);
   link.textContent = '→ ' + (u.url || ('zhihu.com/people/' + u.hash_id));
 
-  document.getElementById('mp-followed').textContent = data.followed_total ?? '?';
-  document.getElementById('mp-followers').textContent = data.followers_total ?? '?';
+  // 知乎 OAuth 不返回 total,展示「已加载样本数」+ 头像列表(更有产品感)
+  const followedLoaded = data.followed_loaded ?? (data.followed_sample?.length ?? 0);
+  const followersLoaded = data.followers_loaded ?? (data.followers_sample?.length ?? 0);
+  document.getElementById('mp-followed').textContent = followedLoaded > 0 ? followedLoaded + '+' : '0';
+  document.getElementById('mp-followers').textContent = followersLoaded > 0 ? followersLoaded + '+' : '0';
 
   const visits = getVisits();
   document.getElementById('mp-visits').textContent = visits.length;
 
-  // 关注流
+  // 关注流 · 你关注的人最近做了什么(actor 赞同/关注/回答了什么)
   const m = document.getElementById('mp-moments');
   if (!data.moments || !data.moments.length) {
-    m.innerHTML = '<div style="padding:16px; font-family:\'Noto Sans SC\'; color:var(--mute); font-size:13px; background:rgba(8,16,31,0.04);">暂无关注流数据(OAuth 接口可能限制或你关注的人最近没发内容)</div>';
+    m.innerHTML = '<div style="padding:16px; font-family:\'Noto Sans SC\'; color:var(--mute); font-size:13px; background:rgba(8,16,31,0.04);">你关注的人最近没有公开动态</div>';
   } else {
-    m.innerHTML = data.moments.map(mt => `
+    m.innerHTML = data.moments.map(mt => {
+      const timeStr = mt.time ? new Date(mt.time * 1000).toLocaleDateString('zh-CN', {month:'short', day:'numeric'}) : '';
+      return `
       <a href="${escHtml(mt.url)}" target="_blank" rel="noopener" style="display:block; padding:16px; border-bottom:1px dashed rgba(8,16,31,0.12); text-decoration:none; color:var(--ink);">
-        <div style="font-family:'Noto Serif SC',serif; font-size:16px; font-weight:500;">${escHtml(mt.title || mt.excerpt.slice(0, 50))}</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mute); letter-spacing:0.05em; margin-bottom:6px;">
+          <strong style="color:var(--accent-strong);">${escHtml(mt.actor || '未知')}</strong>
+          ${escHtml(mt.action || '动态')}
+          ${timeStr ? '<span style="float:right;">' + timeStr + '</span>' : ''}
+        </div>
+        ${mt.title ? `<div style="font-family:'Noto Serif SC',serif; font-size:15px; font-weight:500; line-height:1.5;">${escHtml(mt.title)}</div>` : ''}
         ${mt.excerpt ? `<div style="font-size:13px; color:rgba(8,16,31,0.65); margin-top:6px; line-height:1.6;">${escHtml(mt.excerpt)}…</div>` : ''}
-        ${mt.author ? `<div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute); margin-top:8px; letter-spacing:0.1em;">— ${escHtml(mt.author)}</div>` : ''}
+        ${mt.target_author ? `<div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute); margin-top:8px; letter-spacing:0.1em;">— 原作者 ${escHtml(mt.target_author)}</div>` : ''}
       </a>
-    `).join('');
+    `;}).join('');
   }
 
   // 本馆访问足迹
