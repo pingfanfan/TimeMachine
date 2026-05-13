@@ -72,9 +72,10 @@ export async function onRequest({ request }) {
   const dbg = debug ? {} : null;
 
   const user = (await oauthGet("/user", token, null, dbg)) || {};
-  const followers = (await oauthGet("/openapi/user_followers", token, { page: 0, per_page: 1 }, dbg)) || {};
-  const followed = (await oauthGet("/openapi/user_followed", token, { page: 0, per_page: 1 }, dbg)) || {};
-  const moments = (await oauthGet("/openapi/user_moments", token, { page: 0, per_page: 5 }, dbg)) || {};
+  // /openapi/* 都返回 404,改用同级路径(跟 /user 一致)
+  const followers = (await oauthGet("/user_followers", token, { page: 0, per_page: 1 }, dbg)) || {};
+  const followed = (await oauthGet("/user_followed", token, { page: 0, per_page: 1 }, dbg)) || {};
+  const moments = (await oauthGet("/user_moments", token, { page: 0, per_page: 5 }, dbg)) || {};
 
   const uid = user.uid;
   const body = {
