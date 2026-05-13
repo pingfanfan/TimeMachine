@@ -1,5 +1,6 @@
 // Cloudflare Worker entry · 路由 /api/* 到对应 handler,其余 fallback 到静态资源
 // 复用 functions/api/*.js 的 onRequest(Pages Functions 签名兼容)
+// Build: 2026-05-13 — 触发 redeploy 以让新加的 env vars 生效
 
 import { onRequest as health } from "../functions/api/health.js";
 import { onRequest as topics } from "../functions/api/topics.js";
