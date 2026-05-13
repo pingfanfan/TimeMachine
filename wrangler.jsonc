@@ -12,5 +12,10 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  "vars": {
+    "ZHIHU_OAUTH_APP_ID": "227",
+    "ZHIHU_OAUTH_REDIRECT_URI": "https://www.tmark.top/api/auth/callback",
+    "ZHIHU_RING_ID": "2029619126742656657"
+  }
 }
