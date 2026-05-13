@@ -12,6 +12,7 @@ import { onRequest as logout } from "../functions/api/logout.js";
 import { onRequest as authZhihu } from "../functions/api/auth/zhihu.js";
 import { onRequest as authCallback } from "../functions/api/auth/callback.js";
 import { onRequest as publishPin } from "../functions/api/publish/pin.js";
+import { onRequest as labProbeContent } from "../functions/api/lab/probe-content.js";
 
 const ROUTES = {
   "/api/health": health,
@@ -24,6 +25,7 @@ const ROUTES = {
   "/api/auth/zhihu": authZhihu,
   "/api/auth/callback": authCallback,
   "/api/publish/pin": publishPin,
+  "/api/lab/probe-content": labProbeContent,
 };
 
 export default {
